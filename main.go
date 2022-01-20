@@ -9,7 +9,9 @@ import (
 
 func main() {
 
-	servAddr := "localhost:6666"
+	// servAddr := "localhost:6666"
+	servAddr := "localhost:55921"
+
 	tcpAddr, err := net.ResolveTCPAddr("tcp", servAddr)
 	if err != nil {
 		println("ResolveTCPAddr failed:", err.Error())
@@ -37,6 +39,7 @@ func main() {
 	switch {
 	case serverReply == "get team name\n":
 		clientMessage = "it takes two\n"
+		sendTeamName(clientMessage, conn)
 	case serverReply == "get code\n":
 		clientMessage = "get code received\n"
 		// TODO
@@ -54,14 +57,16 @@ func main() {
 	}
 
 	fmt.Printf("client message=%s", clientMessage)
+	conn.Close()
+}
 
-	_, err = conn.Write([]byte(clientMessage))
+func sendTeamName(teamName string, conn net.Conn) () {
+	fmt.Printf("client message=%s", teamName)
+
+	_, err := conn.Write([]byte(teamName))
 	if err != nil {
 		print("Write to server failed:", err.Error())
 		os.Exit(1)
 	}
 
-	fmt.Printf("client message=%s", clientMessage)
-
-	conn.Close()
 }
