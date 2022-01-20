@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"bufio"
 )
 
 func main() {
@@ -44,9 +45,8 @@ func main() {
 			clientMessage = "it takes two\n"
 			sendTeamName(clientMessage, conn)
 		case serverReply == "get code\n":
-			//TODO: send code over
-			clientMessage = "go\ndickass\n...\n"
-			sendTeamName(clientMessage, conn)
+			codeResponse := parseCodeResponse()
+			sendTeamName(codeResponse, conn)
 		case serverReply == "receive peers\n":
 			clientMessage = "receive peers received\n"
 			//peerNum, peerList := receivePeers(conn)
@@ -90,4 +90,33 @@ func receivePeers(conn net.Conn) (int, []string) {
 	}
 
 	return numPeers, peerIPs
+}
+
+// Format and return a string to match the code response format for project iteration 1
+func parseCodeResponse() (string) {
+	var language string = "golang"
+	var sourceFile string = "main.go"
+	var endOfCode string = "..."
+
+	sourceCode, _:= readFile(sourceFile)
+	codeResponse := fmt.Sprintf("%s\n%s\n%s\n", language, sourceCode, endOfCode)
+	return codeResponse
+}
+
+// Read a file's content line-by-line and return it as string, separated by new-lines. 
+func readFile(srcName string) (string, error) {
+
+    var sourceCode string = ""
+	file, err := os.Open(srcName)
+    if err != nil {
+		return "empty", err
+    }
+    defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		sourceCode += scanner.Text() + "\n"
+	}
+
+	return sourceCode, nil
 }
