@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"net"
 	"os"
@@ -23,25 +22,20 @@ type regServer struct {
 
 func main() {
 
-	var registry regServer
-	registry.address = "localhost:55921"
+	// Get the server's address from the command line
+	address := os.Args[1]
+
+	var registry regServer = regServer{"", []string{}, 0, ""}
 
 	var teamName string = "It Takes Two\n" // Our team name
 
 	// Connect to the server via TCP
-	conn := tcp.InitializeTCP(registry.address)
+	conn := tcp.InitializeTCP(address)
 
 forLoop:
 	for {
-		reply := make([]byte, 1024)
+		serverReply := tcp.ReceiveMessage(conn)
 
-		// Receive the server's response
-		_, err := conn.Read(reply)
-
-		tcp.CheckError(err)
-
-		// Trim off the extra characters
-		serverReply := string(bytes.Trim(reply, "\x00"))
 		var clientMessage string
 
 		fmt.Printf("Server message = %s", serverReply)
@@ -56,9 +50,8 @@ forLoop:
 			codeResponse := parseCodeResponse()
 			tcp.SendMessage(codeResponse, conn)
 		case serverReply == "receive peers\n":
-			clientMessage = "Receiving peers...\n"
-			registry.peerNum, registry.peerList = receivePeers(conn)
-			registry.timeReceived = saveCurrTime()
+			registry.address = address
+			registry.peerNum, registry.peerList, registry.timeReceived = receivePeers(conn)
 			clientMessage = "Peers received\n"
 		case serverReply == "get report\n":
 			clientMessage = "Sending report...\n"
@@ -77,10 +70,9 @@ forLoop:
 }
 
 // Receive the peers from the server and store them into the peerList
-func receivePeers(conn net.Conn) (int, []string) {
-	reply := make([]byte, 1024)
-	_, err := conn.Read(reply)
-	tcp.CheckError(err)
+func receivePeers(conn net.Conn) (int, []string, string) {
+
+	reply := tcp.ReceiveMessage(conn)
 
 	numPeers, _ := strconv.Atoi(strings.Split(string(reply), "\n")[0])
 
@@ -91,12 +83,7 @@ func receivePeers(conn net.Conn) (int, []string) {
 		peerList[i] = strings.Split(string(reply), "\n")[i+1]
 		fmt.Printf("peerList[%d]=%s\n", i, peerList[i])
 	}
-	return numPeers, peerList
-}
-
-// Save the current time to a string
-func saveCurrTime() string {
-	return time.Now().Format("2006-01-02 15:04:05")
+	return numPeers, peerList, time.Now().Format("2006-01-02 15:04:05")
 }
 
 // Format and return a string to match the code response format
@@ -123,13 +110,12 @@ func readCode() (string, error) {
 // Code was inspired from the following link: https://golangdocs.com/reading-files-in-golang
 func readFile(srcName string) (string, error) {
 	var sourceCode string = ""
-	file, err := os.Open(srcName)
-	tcp.CheckError(err)
+	file, _ := os.Open(srcName)
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		sourceCode += scanner.Text() + "\n"
+		sourceCode += fmt.Sprintf("%s\n", scanner.Text())
 	}
 
 	return sourceCode, nil
@@ -137,19 +123,24 @@ func readFile(srcName string) (string, error) {
 
 // Generate a report for the list of peers and sources
 func generateReport(registry regServer) string {
-	// Convert the number of peers to string
-	peerNumString := strconv.Itoa(registry.peerNum)
-	report := peerNumString + "\n"
 
-	for i := 0; i < registry.peerNum; i++ {
-		report += registry.peerList[i] + "\n"
+	// Return nothing if no peers have been received (address empty)
+	if registry.address == "" {
+		return "0\n0\n\n0\n"
 	}
 
-	// report += fmt.Sprintf("1\n%s\n%s\n%s\n", registry.address, registry.timeReceived, peerNumString)
-	report += "1\n" + registry.address + "\n" + registry.timeReceived + "\n" + peerNumString + "\n"
+	// Convert the number of peers to string
+	peerNumString := strconv.Itoa(registry.peerNum)
+	report := fmt.Sprintf("%s\n", peerNumString)
 
 	for i := 0; i < registry.peerNum; i++ {
-		report += registry.peerList[i] + "\n"
+		report += fmt.Sprintf("%s\n", registry.peerList[i])
+	}
+
+	report += fmt.Sprintf("1\n%s\n%s\n%s\n", registry.address, registry.timeReceived, peerNumString)
+
+	for i := 0; i < registry.peerNum; i++ {
+		report += fmt.Sprintf("%s\n", registry.peerList[i])
 	}
 	fmt.Printf("Report:\n%s", report)
 
