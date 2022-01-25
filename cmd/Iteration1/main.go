@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/erick0722/559Project/pkg/tcp"
+	"559Project/pkg/tcp"
 )
 
 // Struct to store the server's address, list of peers, number of peers, and the time the peers are received
