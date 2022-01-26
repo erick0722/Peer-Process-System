@@ -1,3 +1,11 @@
+/*
+	CPSC 559 - Iteration 1
+	ioUtil.go
+
+	Erick Yip
+	Chris Chen
+*/
+
 package fileIO
 
 import (
@@ -8,7 +16,8 @@ import (
 	"os"
 )
 
-// https://golang.cafe/blog/how-to-list-files-in-a-directory-in-go.html
+// Read all files in a directory and return their content as string
+// Code was inspired from: https://golang.cafe/blog/how-to-list-files-in-a-directory-in-go.html
 func readDirectory(dirName string) string {
 	files, err := ioutil.ReadDir(dirName)
 	var sourceCode string
@@ -17,7 +26,6 @@ func readDirectory(dirName string) string {
 	}
 
 	for _, file := range files {
-		fmt.Println(file.Name())
 		sourceCode += readFile(dirName + file.Name())
 	}
 	return sourceCode

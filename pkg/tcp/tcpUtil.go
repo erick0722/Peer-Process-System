@@ -1,3 +1,11 @@
+/*
+	CPSC 559 - Iteration 1
+	tcpUtil.go
+
+	Erick Yip
+	Chris Chen
+*/
+
 package tcp
 
 import (
@@ -15,6 +23,7 @@ func InitializeTCP(address string) net.Conn {
 	return conn
 }
 
+// Receive message from the server
 func ReceiveMessage(conn net.Conn) string {
 	reply := make([]byte, 1024)
 	_, err := conn.Read(reply)
@@ -22,13 +31,13 @@ func ReceiveMessage(conn net.Conn) string {
 	return string(bytes.Trim(reply, "\x00"))
 }
 
-// Send the given message to the server
+// Send message to the server
 func SendMessage(message string, conn net.Conn) {
 	_, err := conn.Write([]byte(message))
 	checkError(err)
 }
 
-// Check for errors and exit if any
+// Check for errors
 func checkError(err error) {
 	if err != nil {
 		println("Error detected, exiting...", err.Error())

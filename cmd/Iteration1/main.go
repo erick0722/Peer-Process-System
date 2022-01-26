@@ -1,3 +1,11 @@
+/*
+	CPSC 559 - Iteration 1
+	main.go
+
+	Erick Yip
+	Chris Chen
+*/
+
 package main
 
 import (
@@ -44,22 +52,27 @@ forLoop:
 		case serverReply == "get team name\n":
 			clientMessage = "Sending team name...\n"
 			tcp.SendMessage(teamName, conn)
+
 		case serverReply == "get code\n":
 			clientMessage = "Sending code...\n"
 			codeResponse := fileIO.ParseCodeResponse()
 			tcp.SendMessage(codeResponse, conn)
+
 		case serverReply == "receive peers\n":
 			registry.address = address
 			registry.peerNum, registry.peerList, registry.timeReceived = receivePeers(conn)
 			clientMessage = "Peers received\n"
+
 		case serverReply == "get report\n":
 			clientMessage = "Sending report...\n"
 			report := generateReport(registry)
 			tcp.SendMessage(report, conn)
+
 		case serverReply == "close\n":
 			fmt.Printf("%s", "Closing...\n")
 			conn.Close()
 			break forLoop
+
 		default:
 			clientMessage = "Unknown message\n"
 		}
@@ -97,6 +110,7 @@ func generateReport(registry regServer) string {
 	peerNumString := strconv.Itoa(registry.peerNum)
 	report := fmt.Sprintf("%s\n", peerNumString)
 
+	// Concat the list of peers
 	for i := 0; i < registry.peerNum; i++ {
 		report += fmt.Sprintf("%s\n", registry.peerList[i])
 	}
@@ -106,6 +120,7 @@ func generateReport(registry regServer) string {
 	for i := 0; i < registry.peerNum; i++ {
 		report += fmt.Sprintf("%s\n", registry.peerList[i])
 	}
+
 	fmt.Printf("Report:\n%s", report)
 
 	return report
