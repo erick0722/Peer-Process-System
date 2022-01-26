@@ -1,15 +1,14 @@
 package main
 
 import (
-	"bufio"
+	"559Project/pkg/fileIO"
+	"559Project/pkg/tcp"
 	"fmt"
 	"net"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-
-	"559Project/pkg/tcp"
 )
 
 // Struct to store the server's address, list of peers, number of peers, and the time the peers are received
@@ -47,7 +46,7 @@ forLoop:
 			tcp.SendMessage(teamName, conn)
 		case serverReply == "get code\n":
 			clientMessage = "Sending code...\n"
-			codeResponse := parseCodeResponse()
+			codeResponse := fileIO.ParseCodeResponse()
 			tcp.SendMessage(codeResponse, conn)
 		case serverReply == "receive peers\n":
 			registry.address = address
@@ -84,41 +83,6 @@ func receivePeers(conn net.Conn) (int, []string, string) {
 		fmt.Printf("peerList[%d]=%s\n", i, peerList[i])
 	}
 	return numPeers, peerList, time.Now().Format("2006-01-02 15:04:05")
-}
-
-// Format and return a string to match the code response format
-func parseCodeResponse() string {
-	var language string = "golang"
-	var sourceFile string = "main.go"
-	var endOfCode string = "..."
-
-	sourceCode, _ := readFile(sourceFile)
-
-	codeResponse := fmt.Sprintf("%s\n%s\n%s\n", language, sourceCode, endOfCode)
-	return codeResponse
-}
-
-func readCode() (string, error) {
-	// for recursive file in ./cmd, read file and path to string
-
-	// for recursive file in ./pkg, read file and path to string
-
-	return "", nil
-}
-
-// Read a file's content line-by-line and return it as string, separated by new-lines.
-// Code was inspired from the following link: https://golangdocs.com/reading-files-in-golang
-func readFile(srcName string) (string, error) {
-	var sourceCode string = ""
-	file, _ := os.Open(srcName)
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		sourceCode += fmt.Sprintf("%s\n", scanner.Text())
-	}
-
-	return sourceCode, nil
 }
 
 // Generate a report for the list of peers and sources
