@@ -9,7 +9,7 @@
 package tcp
 
 import (
-	"bytes"
+	"bufio"
 	"net"
 	"os"
 )
@@ -23,12 +23,10 @@ func InitializeTCP(address string) net.Conn {
 	return conn
 }
 
-// Receive message from the server
-func ReceiveMessage(conn net.Conn) string {
-	reply := make([]byte, 1024)
-	_, err := conn.Read(reply)
-	checkError(err)
-	return string(bytes.Trim(reply, "\x00"))
+//Receive message from the server
+func ReceiveMessage(conn net.Conn, scanner *bufio.Scanner) string {
+	scanner.Scan()
+	return scanner.Text()
 }
 
 // Send message to the server

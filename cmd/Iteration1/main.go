@@ -11,6 +11,7 @@ package main
 import (
 	"559Project/pkg/fileIO"
 	"559Project/pkg/tcp"
+	"bufio"
 	"fmt"
 	"net"
 	"os"
@@ -38,37 +39,40 @@ func main() {
 
 	// Connect to the server via TCP
 	conn := tcp.InitializeTCP(address)
+	fmt.Printf("Connected to server at %s\n", address)
+
+	scanner := bufio.NewScanner(conn)
 
 forLoop:
 	for {
-		serverReply := tcp.ReceiveMessage(conn)
+		serverReply := tcp.ReceiveMessage(conn, scanner)
 
 		var clientMessage string
 
-		fmt.Printf("Server message = %s", serverReply)
+		fmt.Printf("Server message = %s\n", serverReply)
 
 		// Check the server's response and take corresponding actions
 		switch {
-		case serverReply == "get team name\n":
+		case strings.Contains(serverReply, "get team name"):
 			clientMessage = "Sending team name...\n"
 			tcp.SendMessage(teamName, conn)
 
-		case serverReply == "get code\n":
+		case strings.Contains(serverReply, "get code"):
 			clientMessage = "Sending code...\n"
 			codeResponse := fileIO.ParseCodeResponse()
 			tcp.SendMessage(codeResponse, conn)
 
-		case serverReply == "receive peers\n":
+		case strings.Contains(serverReply, "receive peers"):
 			registry.address = address
-			registry.peerNum, registry.peerList, registry.timeReceived = receivePeers(conn)
+			registry.peerNum, registry.peerList, registry.timeReceived = receivePeers(conn, scanner)
 			clientMessage = "Peers received\n"
 
-		case serverReply == "get report\n":
+		case strings.Contains(serverReply, "get report"):
 			clientMessage = "Sending report...\n"
 			report := generateReport(registry)
 			tcp.SendMessage(report, conn)
 
-		case serverReply == "close\n":
+		case strings.Contains(serverReply, "close"):
 			fmt.Printf("%s", "Closing...\n")
 			conn.Close()
 			break forLoop
@@ -82,19 +86,21 @@ forLoop:
 }
 
 // Receive the peers from the server and store them into the peerList
-func receivePeers(conn net.Conn) (int, []string, string) {
+func receivePeers(conn net.Conn, scanner *bufio.Scanner) (int, []string, string) {
 
-	reply := tcp.ReceiveMessage(conn)
+	reply := tcp.ReceiveMessage(conn, scanner)
 
-	numPeers, _ := strconv.Atoi(strings.Split(string(reply), "\n")[0])
-
-	fmt.Printf("numPeers=%d\n", numPeers)
+	// Convert the number of peers to int
+	numPeers, _ := strconv.Atoi(strings.Split(reply, " ")[0])
 
 	peerList := make([]string, numPeers)
+
+	// Receive the peers
 	for i := 0; i < numPeers; i++ {
-		peerList[i] = strings.Split(string(reply), "\n")[i+1]
+		peerList[i] = tcp.ReceiveMessage(conn, scanner)
 		fmt.Printf("peerList[%d]=%s\n", i, peerList[i])
 	}
+
 	return numPeers, peerList, time.Now().Format("2006-01-02 15:04:05")
 }
 
@@ -115,6 +121,7 @@ func generateReport(registry regServer) string {
 		report += fmt.Sprintf("%s\n", registry.peerList[i])
 	}
 
+	// Format the report
 	report += fmt.Sprintf("1\n%s\n%s\n%s\n", registry.address, registry.timeReceived, peerNumString)
 
 	for i := 0; i < registry.peerNum; i++ {
