@@ -129,16 +129,22 @@ func generateReport(server regServer) string {
 	report := fmt.Sprintf("%s\n", peerNumString)
 
 	// Concat the list of peers
-	for i := 0; i < server.peerNum; i++ {
-		report += fmt.Sprintf("%s\n", server.peerList[i])
-	}
+	report += concatPeers(server)
 
 	// Format the report
 	report += fmt.Sprintf("1\n%s\n%s\n%s\n", server.address, server.timeReceived, peerNumString)
 
-	for i := 0; i < server.peerNum; i++ {
-		report += fmt.Sprintf("%s\n", server.peerList[i])
-	}
+	report += concatPeers(server)
 
 	return report
+}
+
+func concatPeers(server regServer) string {
+	var peerList string
+
+	for i := 0; i < server.peerNum; i++ {
+		peerList += fmt.Sprintf("%s\n", server.peerList[i])
+	}
+
+	return peerList
 }
