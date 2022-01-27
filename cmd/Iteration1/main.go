@@ -33,7 +33,7 @@ func main() {
 	// Get the server's address from the command line
 	address := os.Args[1]
 
-	var registry regServer = regServer{"", []string{}, 0, ""}
+	var server regServer = regServer{"", []string{}, 0, ""}
 
 	var teamName string = "It Takes Two\n" // Our team name
 
@@ -63,13 +63,13 @@ forLoop:
 			tcp.SendMessage(codeResponse, conn)
 
 		case strings.Contains(serverReply, "receive peers"):
-			registry.address = address
-			registry.peerNum, registry.peerList, registry.timeReceived = receivePeers(conn, scanner)
-			clientMessage = "Peers received\n"
+			server.address = address
+			receivePeers(&server, conn, scanner)
+			clientMessage = "Storing peers...\n"
 
 		case strings.Contains(serverReply, "get report"):
 			clientMessage = "Sending report...\n"
-			report := generateReport(registry)
+			report := generateReport(server)
 			tcp.SendMessage(report, conn)
 
 		case strings.Contains(serverReply, "close"):
@@ -86,49 +86,59 @@ forLoop:
 }
 
 // Receive the peers from the server and store them into the peerList
-func receivePeers(conn net.Conn, scanner *bufio.Scanner) (int, []string, string) {
+func receivePeers(server *regServer, conn net.Conn, scanner *bufio.Scanner) {
 
 	reply := tcp.ReceiveMessage(conn, scanner)
 
 	// Convert the number of peers to int
 	numPeers, _ := strconv.Atoi(strings.Split(reply, " ")[0])
 
-	peerList := make([]string, numPeers)
-
 	// Receive the peers
 	for i := 0; i < numPeers; i++ {
-		peerList[i] = tcp.ReceiveMessage(conn, scanner)
-		fmt.Printf("peerList[%d]=%s\n", i, peerList[i])
+		// check if the peer is already in the server's peerlist
+		peer := tcp.ReceiveMessage(conn, scanner)
+		if !contains(server.peerList, peer) {
+			server.peerList = append(server.peerList, peer)
+			server.peerNum++
+		}
 	}
 
-	return numPeers, peerList, time.Now().Format("2006-01-02 15:04:05")
+	server.timeReceived = time.Now().Format("2006-01-02 15:04:05")
+}
+
+// Checks if a string is present in a slice
+func contains(list []string, str string) bool {
+	for _, s := range list {
+		if s == str {
+			return true
+		}
+	}
+	return false
 }
 
 // Generate a report for the list of peers and sources
-func generateReport(registry regServer) string {
+func generateReport(server regServer) string {
 
 	// Return nothing if no peers have been received (address empty)
-	if registry.address == "" {
+	if server.address == "" {
 		return "0\n0\n\n0\n"
 	}
 
 	// Convert the number of peers to string
-	peerNumString := strconv.Itoa(registry.peerNum)
+	peerNumString := strconv.Itoa(server.peerNum)
 	report := fmt.Sprintf("%s\n", peerNumString)
 
 	// Concat the list of peers
-	for i := 0; i < registry.peerNum; i++ {
-		report += fmt.Sprintf("%s\n", registry.peerList[i])
+	for i := 0; i < server.peerNum; i++ {
+		report += fmt.Sprintf("%s\n", server.peerList[i])
 	}
 
 	// Format the report
-	report += fmt.Sprintf("1\n%s\n%s\n%s\n", registry.address, registry.timeReceived, peerNumString)
+	report += fmt.Sprintf("1\n%s\n%s\n%s\n", server.address, server.timeReceived, peerNumString)
 
-	for i := 0; i < registry.peerNum; i++ {
-		report += fmt.Sprintf("%s\n", registry.peerList[i])
+	for i := 0; i < server.peerNum; i++ {
+		report += fmt.Sprintf("%s\n", server.peerList[i])
 	}
-
-	fmt.Printf("Report:\n%s", report)
 
 	return report
 }
