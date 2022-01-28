@@ -30,6 +30,11 @@ type regServer struct {
 
 func main() {
 
+	if len(os.Args) != 2 {
+		fmt.Println("Missing <server address>")
+		os.Exit(1)
+	}
+
 	// Get the server's address from the command line
 	address := os.Args[1]
 
@@ -93,6 +98,8 @@ func receivePeers(server *regServer, conn net.Conn, scanner *bufio.Scanner) {
 	// Convert the number of peers to int
 	numPeers, _ := strconv.Atoi(strings.Split(reply, " ")[0])
 
+	fmt.Printf("%d peers received\n", numPeers)
+
 	// Receive the peers
 	for i := 0; i < numPeers; i++ {
 		// check if the peer is already in the server's peerlist
@@ -100,6 +107,9 @@ func receivePeers(server *regServer, conn net.Conn, scanner *bufio.Scanner) {
 		if !contains(server.peerList, peer) {
 			server.peerList = append(server.peerList, peer)
 			server.peerNum++
+			fmt.Printf("%s added to peer list\n", peer)
+		} else {
+			fmt.Printf("%s already in peer list\n", peer)
 		}
 	}
 
@@ -135,6 +145,8 @@ func generateReport(server regServer) string {
 	report += fmt.Sprintf("1\n%s\n%s\n%s\n", server.address, server.timeReceived, peerNumString)
 
 	report += concatPeers(server)
+
+	fmt.Printf("%s", report)
 
 	return report
 }
