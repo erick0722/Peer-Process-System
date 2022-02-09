@@ -6,7 +6,7 @@
 	Chris Chen
 */
 
-package tcp
+package sock
 
 import (
 	"bufio"
@@ -15,10 +15,27 @@ import (
 )
 
 // Start the TCP connection to the server
-func InitializeTCP(address string) net.Conn {
+func InitializeTcpClient(address string) net.Conn {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", address)
 	checkError(err)
 	conn, err := net.DialTCP("tcp", nil, tcpAddr)
+	checkError(err)
+	return conn
+}
+
+func InitializeUdpClient(address string) net.Conn {
+	udpAddr, err := net.ResolveUDPAddr("udp", address)
+	checkError(err)
+	conn, err := net.DialUDP("udp", nil, udpAddr)
+	checkError(err)
+	return conn
+}
+
+// https://varshneyabhi.wordpress.com/2014/12/23/simple-udp-clientserver-in-golang/
+func InitializeUdpServer(address string) net.Conn {
+	udpAddr, err := net.ResolveUDPAddr("udp", address)
+	checkError(err)
+	conn, err := net.ListenUDP("udp", udpAddr)
 	checkError(err)
 	return conn
 }

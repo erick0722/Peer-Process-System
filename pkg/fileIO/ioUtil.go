@@ -37,8 +37,9 @@ func ParseCodeResponse() string {
 	var endOfCode string = "..."
 
 	sourceCode := readDirectory("pkg/fileIO/")
-	sourceCode += readDirectory("pkg/tcp/")
-	sourceCode += readDirectory("cmd/Iteration1/")
+	sourceCode += readDirectory("pkg/registry/")
+	sourceCode += readDirectory("pkg/sock/")
+	sourceCode += readDirectory("cmd/Iteration2/")
 	codeResponse := fmt.Sprintf("%s\n%s\n%s\n", language, sourceCode, endOfCode)
 	return codeResponse
 }
