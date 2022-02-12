@@ -41,8 +41,9 @@ func main() {
 	}()
 
 	go func() {
-
+		sock.ReceiveUdpMessage("localhost:8001")
 		peerGroup.Done()
 	}()
+
 	peerGroup.Wait()
 }

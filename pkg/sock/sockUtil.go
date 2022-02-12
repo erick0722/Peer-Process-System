@@ -10,6 +10,7 @@ package sock
 
 import (
 	"bufio"
+	"fmt"
 	"net"
 	"os"
 )
@@ -32,7 +33,7 @@ func InitializeUdpClient(address string) net.Conn {
 }
 
 // https://varshneyabhi.wordpress.com/2014/12/23/simple-udp-clientserver-in-golang/
-func InitializeUdpServer(address string) net.Conn {
+func InitializeUdpServer(address string) *net.UDPConn {
 	udpAddr, err := net.ResolveUDPAddr("udp", address)
 	checkError(err)
 	conn, err := net.ListenUDP("udp", udpAddr)
@@ -40,8 +41,28 @@ func InitializeUdpServer(address string) net.Conn {
 	return conn
 }
 
+func ReceiveUdpMessage(address string) bool {
+	var conn *net.UDPConn = InitializeUdpServer(address)
+
+	for {
+		// Read from the connection
+		data := make([]byte, 1024)
+		_, addr, err := conn.ReadFromUDP(data)
+		checkError(err)
+
+		// Print the received data
+		fmt.Println("Received ", string(data), " from ", addr)
+
+		// compare the first 4 letters of the message with the string "exit" (testing purposes)
+		if string(data[0:4]) == "exit" {
+			fmt.Println("Exiting...")
+			return true
+		}
+	}
+}
+
 //Receive message from the server
-func ReceiveMessage(conn net.Conn, scanner *bufio.Scanner) string {
+func ReceiveTcpMessage(conn net.Conn, scanner *bufio.Scanner) string {
 	scanner.Scan()
 	return scanner.Text()
 }
