@@ -1,3 +1,4 @@
+// =============================================================
 /*
 	CPSC 559 - Iteration 2
 	main.go
@@ -9,41 +10,40 @@
 package main
 
 import (
+	"559Project/pkg/peer"
 	"559Project/pkg/registry"
-	"559Project/pkg/sock"
 	"fmt"
-	"os"
 	"sync"
 )
 
 func main() {
 
-	if len(os.Args) != 2 {
-		fmt.Println("Missing <server address>")
-		os.Exit(1)
-	}
+	var regAddr, peerAddr string
+	var wg sync.WaitGroup
 
-	// Get the server's address from the command line
-	address := os.Args[1]
+	//ask for the registry and peer process' address
+	fmt.Println("Please enter the registry's address: ")
+	fmt.Scanln(&regAddr)
+
+	fmt.Println("Please enter the peer process's address: ")
+	fmt.Scanln(&peerAddr)
 
 	// Connect to the server via TCP
-	tcpConn := sock.InitializeTcpClient(address)
-	fmt.Printf("Connected to server at %s\n", address)
+	wg.Add(2)
 
-	//udpConn := sock.InitializeUdpServer("136.159.5.22:8722")
-	//fmt.Printf("Listening for UDP packets on %s\n", address)
-	var peerGroup sync.WaitGroup
-	peerGroup.Add(2)
 	go func() {
-		registry.RegistryCommunicator(address, tcpConn)
+		registry.InitRegistryCommunicator(regAddr, peerAddr)
 		fmt.Println("Registry Communicator exited")
-		peerGroup.Done()
+		wg.Done()
 	}()
 
 	go func() {
-		sock.ReceiveUdpMessage("localhost:8001")
-		peerGroup.Done()
+		peer.InitPeerProcess(peerAddr)
+		fmt.Println("Peer Process exited")
+		wg.Done()
 	}()
 
-	peerGroup.Wait()
+	wg.Wait()
 }
+
+// =============================================================

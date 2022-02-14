@@ -1,6 +1,7 @@
+// =============================================================
 /*
-	CPSC 559 - Iteration 1
-	tcpUtil.go
+	CPSC 559 - Iteration 2
+	sockUtil.go
 
 	Erick Yip
 	Chris Chen
@@ -10,7 +11,6 @@ package sock
 
 import (
 	"bufio"
-	"fmt"
 	"net"
 	"os"
 )
@@ -41,24 +41,14 @@ func InitializeUdpServer(address string) *net.UDPConn {
 	return conn
 }
 
-func ReceiveUdpMessage(address string) bool {
-	var conn *net.UDPConn = InitializeUdpServer(address)
+func ReceiveUdpMessage(address string, conn *net.UDPConn) (string, string) {
 
-	for {
-		// Read from the connection
-		data := make([]byte, 1024)
-		_, addr, err := conn.ReadFromUDP(data)
-		checkError(err)
+	// Read from the connection
+	data := make([]byte, 1024)
+	_, addr, err := conn.ReadFromUDP(data)
+	checkError(err)
+	return string(data), addr.String()
 
-		// Print the received data
-		fmt.Println("Received ", string(data), " from ", addr)
-
-		// compare the first 4 letters of the message with the string "exit" (testing purposes)
-		if string(data[0:4]) == "exit" {
-			fmt.Println("Exiting...")
-			return true
-		}
-	}
 }
 
 //Receive message from the server
@@ -80,3 +70,5 @@ func checkError(err error) {
 		os.Exit(1)
 	}
 }
+
+// =============================================================

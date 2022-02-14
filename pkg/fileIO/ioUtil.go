@@ -1,5 +1,6 @@
+// =============================================================
 /*
-	CPSC 559 - Iteration 1
+	CPSC 559 - Iteration 2
 	ioUtil.go
 
 	Erick Yip
@@ -11,23 +12,31 @@ package fileIO
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
+	"path/filepath"
 )
 
 // Read all files in a directory and return their content as string
 // Code was inspired from: https://golang.cafe/blog/how-to-list-files-in-a-directory-in-go.html
 func readDirectory(dirName string) string {
-	files, err := ioutil.ReadDir(dirName)
+
 	var sourceCode string
+	err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if !info.IsDir() {
+			sourceCode += readFile(path)
+		}
+		return nil
+	})
+
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
-	for _, file := range files {
-		sourceCode += readFile(dirName + file.Name())
-	}
 	return sourceCode
 }
 
@@ -36,10 +45,9 @@ func ParseCodeResponse() string {
 	var language string = "golang"
 	var endOfCode string = "..."
 
-	sourceCode := readDirectory("pkg/fileIO/")
-	sourceCode += readDirectory("pkg/registry/")
-	sourceCode += readDirectory("pkg/sock/")
-	sourceCode += readDirectory("cmd/Iteration2/")
+	sourceCode := readDirectory("pkg/")
+	sourceCode += readDirectory("cmd/")
+
 	codeResponse := fmt.Sprintf("%s\n%s\n%s\n", language, sourceCode, endOfCode)
 	return codeResponse
 }
@@ -58,3 +66,5 @@ func readFile(fileName string) string {
 
 	return sourceCode
 }
+
+// =============================================================
