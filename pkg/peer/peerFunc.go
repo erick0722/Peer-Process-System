@@ -12,14 +12,19 @@ package peer
 import (
 	"559Project/pkg/sock"
 	"fmt"
+	"sync"
 )
 
 func InitPeerProcess(address string) {
 	conn := sock.InitializeUdpServer(address)
+	var wg sync.WaitGroup
+	const TOTAL_THREADS int = 4
 
 	for {
 		msg, addr := sock.ReceiveUdpMessage(address, conn)
 		fmt.Println("Received ", msg, " from ", addr)
+
+		wg.Add(TOTAL_THREADS)
 
 		switch string(msg[0:4]) {
 		case "stop":
