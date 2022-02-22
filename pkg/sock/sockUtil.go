@@ -11,6 +11,7 @@ package sock
 
 import (
 	"bufio"
+	"fmt"
 	"net"
 	"os"
 )
@@ -34,6 +35,7 @@ func InitializeUdpClient(address string) net.Conn {
 
 // https://varshneyabhi.wordpress.com/2014/12/23/simple-udp-clientserver-in-golang/
 func InitializeUdpServer(address string) *net.UDPConn {
+	fmt.Print("Initializing UDP server...\n")
 	udpAddr, err := net.ResolveUDPAddr("udp", address)
 	checkError(err)
 	conn, err := net.ListenUDP("udp", udpAddr)

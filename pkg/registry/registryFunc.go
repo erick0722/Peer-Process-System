@@ -11,6 +11,7 @@ package registry
 
 import (
 	"559Project/pkg/fileIO"
+	"559Project/pkg/peer"
 	"559Project/pkg/sock"
 	"bufio"
 	"fmt"
@@ -25,7 +26,7 @@ type regServer struct {
 	address      string
 	peerList     []string
 	peerNum      int
-	timeReceived string
+	timeReceived string // TODO: Change to Datetime type later
 }
 
 func InitRegistryCommunicator(regAddress string, peerAddress string) {
@@ -108,6 +109,8 @@ func receivePeers(server *regServer, conn net.Conn, scanner *bufio.Scanner) {
 	}
 
 	server.timeReceived = time.Now().Format("2006-01-02 15:04:05")
+
+	peer.SetInitialPeerList(server.peerList, server.peerNum)
 }
 
 // Checks if a string is present in a slice
