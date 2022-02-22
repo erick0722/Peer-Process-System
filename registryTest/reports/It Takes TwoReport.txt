@@ -1,7 +1,0 @@
-Sun Feb 13 20:20:18 MST 2022
-2 in list: 132111:122 127.0.0.1:45538 
-1 sources:
-Source: localhost:55921
-Date: 2022-02-13 20:20:18
-Num of peers received: 2
-132111:122 127.0.0.1:45538 
