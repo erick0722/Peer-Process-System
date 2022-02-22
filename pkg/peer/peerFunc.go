@@ -12,6 +12,7 @@ package peer
 import (
 	"559Project/pkg/sock"
 	"fmt"
+	"net"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +21,7 @@ import (
 type peerStruct struct {
 	address string
 	source  string
+	conn    net.Conn
 }
 
 type receivedEvent struct {
@@ -50,8 +52,7 @@ func InitPeerProcess(address string) {
 		case "peer":
 			fmt.Println("Storing peer address...")
 			//trim off all the white spaces in msg
-			//TODO: trim the msg, get rid of all white spaces and new lines
-			// length of msg is 1024 rn
+			//TODO: trim off white spaces in msg
 			source := strings.TrimSpace(msg)
 			go addPeer(source[4:], addr)
 		}
@@ -63,19 +64,21 @@ func SetInitialPeerList(peerList []string, peerNum int) {
 	for i := 0; i < peerNum; i++ {
 		PeerList[i].address = peerList[i]
 		PeerList[i].source = ""
+		PeerList[i].conn = sock.InitializeUdpClient(peerList[i])
 		fmt.Printf("Peer %d: %s\n", i, PeerList[i].address)
 	}
 }
 
 func addPeer(receivedAddr string, source string) {
 	fmt.Printf("Received peer %s from %s\n", receivedAddr, source)
-	PeerList = append(PeerList, peerStruct{receivedAddr, ""})
+	PeerList = append(PeerList, peerStruct{receivedAddr, "", sock.InitializeUdpClient(receivedAddr)})
 	fmt.Printf("Peer %d: %s\n", len(PeerList)-1, PeerList[len(PeerList)-1].address)
 	addRecvEvent(receivedAddr, source, time.Now().Format("2006-01-02 15:04:05"))
 }
 
 func addRecvEvent(receivedAddr string, source string, timeReceived string) {
 	RecvOrder = append(RecvOrder, receivedEvent{receivedAddr, source, timeReceived})
+	fmt.Printf("Peer %d: %s, %s\n", len(RecvOrder)-1, RecvOrder[len(RecvOrder)-1].received, RecvOrder[len(RecvOrder)-1].timeReceived)
 }
 
 // =============================================================
