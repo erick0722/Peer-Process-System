@@ -51,9 +51,9 @@ func InitPeerProcess(address string) {
 			fmt.Println("Received snip command, exiting...")
 		case "peer":
 			fmt.Println("Storing peer address...")
-			//trim off all the white spaces in msg
-			//TODO: trim off white spaces in msg
-			source := strings.TrimSpace(msg)
+
+			// Remove leading newline character in front of the address
+			source := strings.Join(strings.Split(msg, "\n"), "")
 			go addPeer(source[4:], addr)
 		}
 	}
