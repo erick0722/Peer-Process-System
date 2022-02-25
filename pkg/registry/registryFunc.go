@@ -98,19 +98,20 @@ func receivePeers(server *regServer, conn net.Conn, scanner *bufio.Scanner) {
 	// Receive the peers
 	for i := 0; i < numPeers; i++ {
 		// check if the peer is already in the server's peerlist
-		peer := sock.ReceiveTcpMessage(conn, scanner)
-		if !contains(server.peerList, peer) {
-			server.peerList = append(server.peerList, peer)
+		peerAddr := sock.ReceiveTcpMessage(conn, scanner)
+		if !contains(server.peerList, peerAddr) {
+			server.peerList = append(server.peerList, peerAddr)
 			server.peerNum++
-			fmt.Printf("%s added to peer list\n", peer)
+			fmt.Printf("%s added to peer list\n", peerAddr)
+			peer.AppendPeer(peerAddr, "localhost:55921")
 		} else {
-			fmt.Printf("%s already in peer list\n", peer)
+			fmt.Printf("%s already in peer list\n", peerAddr)
 		}
+
 	}
 
 	server.timeReceived = time.Now().Format("2006-01-02 15:04:05")
 
-	peer.SetInitialPeerList(server.peerList, server.peerNum)
 }
 
 // Checks if a string is present in a slice
