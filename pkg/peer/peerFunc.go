@@ -48,7 +48,7 @@ func InitPeerProcess(address string) {
 
 	go readSnip()
 	go sendPeerList()
-	go checkInactivePeers()
+	//go checkInactivePeers()
 
 	for {
 		msg, addr := sock.ReceiveUdpMessage(address, conn)
@@ -158,7 +158,7 @@ func checkInactivePeers() {
 					diff, _ := time.Parse("2006-01-02 15:04:05", PeerList[i].lastHeard)
 					if time.Since(diff) >= 10*time.Second {
 						fmt.Printf("Removing peer %s\n", PeerList[i].address)
-						PeerList = append(PeerList[:i], PeerList[i+1:]...)
+						//PeerList = append(PeerList[:i], PeerList[i+1:]...)
 					}
 				}(i)
 			}
