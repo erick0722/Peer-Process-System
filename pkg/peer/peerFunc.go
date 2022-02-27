@@ -72,7 +72,7 @@ func InitPeerProcess(address string) {
 
 func AppendPeer(peer string, source string) {
 	PeerList = append(PeerList, peerStruct{peer, source, time.Now().Format("2006-01-02 15:04:05")})
-	fmt.Printf("Appended %s, %s\n", PeerList[len(PeerList)-1].address, PeerList[len(PeerList)-1].source)
+	//fmt.Printf("Appended %s, %s\n", PeerList[len(PeerList)-1].address, PeerList[len(PeerList)-1].source)
 }
 
 func searchPeerList(peer string) (bool, int) {
@@ -85,22 +85,23 @@ func searchPeerList(peer string) (bool, int) {
 }
 
 func addPeer(receivedAddr string, source string) {
-	exist, _ := searchPeerList(receivedAddr)
-	if !exist {
+	peerExist, _ := searchPeerList(receivedAddr)
+	sourceExist, _ := searchPeerList(source)
+	if !peerExist {
 		AppendPeer(receivedAddr, source)
 	}
 
 	//add sender to list of received peers
-	// if !exist {
-	// 	AppendPeer(source, source)
-	// }
+	if !sourceExist {
+		AppendPeer(source, source)
+	}
 
 	addRecvEvent(receivedAddr, source, time.Now().Format("2006-01-02 15:04:05"))
 }
 
 func addRecvEvent(receivedAddr string, source string, timeReceived string) {
 	RecievedPeers = append(RecievedPeers, receivedEvent{receivedAddr, source, timeReceived})
-	fmt.Printf("Received Peer %d: %s, %s\n", len(RecievedPeers)-1, RecievedPeers[len(RecievedPeers)-1].received, RecievedPeers[len(RecievedPeers)-1].timeReceived)
+	//fmt.Printf("Received Peer %d: %s, %s\n", len(RecievedPeers)-1, RecievedPeers[len(RecievedPeers)-1].received, RecievedPeers[len(RecievedPeers)-1].timeReceived)
 }
 
 func readSnip() {
@@ -142,6 +143,8 @@ func storeSnip(msg string, source string) {
 	_, index := searchPeerList(source)
 	if index != -1 {
 		PeerList[index].lastHeard = time.Now().Format("2006-01-02 15:04:05")
+	}if !exist {
+		AppendPeer(source, source)
 	}
 	fmt.Printf("Received Snip %d: %s, %s from %s\n", len(SnipList)-1, SnipList[len(SnipList)-1].content, SnipList[len(SnipList)-1].timeStamp, SnipList[len(SnipList)-1].source)
 }
@@ -182,7 +185,7 @@ func sendPeerList() {
 							conn := sock.InitializeUdpClient(PeerList[j].address)
 							sock.SendMessage(PeerList[i].address, conn)
 							currTimeStamp++
-							fmt.Printf("Sent %s to %s\n", PeerList[i].address, PeerList[j].address)
+							//fmt.Printf("Sent %s to %s\n", PeerList[i].address, PeerList[j].address)
 						}
 					}
 				}(i)
