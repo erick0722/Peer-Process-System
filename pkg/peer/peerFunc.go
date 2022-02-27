@@ -120,7 +120,9 @@ func readSnip() {
 
 func sendSnip(input string) {
 	var wg sync.WaitGroup
-	input = "snip" + string(currTimeStamp) + input
+	//convert currTimeStamp into string
+	currTimeStampStr := string(currTimeStamp)
+	input = "snip" + currTimeStampStr + " " + input
 	fmt.Printf("Sending snip: %s\n", input)
 	for i := 0; i < len(PeerList); i++ {
 		wg.Add(1)
@@ -129,6 +131,7 @@ func sendSnip(input string) {
 			if sock.CheckAddress(PeerList[i].address) {
 				conn := sock.InitializeUdpClient(PeerList[i].address)
 				sock.SendMessage(input, conn)
+				fmt.Printf("Sent snip to %s\n", PeerList[i].address)
 				currTimeStamp++
 			}
 		}(i)
