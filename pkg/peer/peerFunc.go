@@ -91,9 +91,9 @@ func addPeer(receivedAddr string, source string) {
 	}
 
 	//add sender to list of received peers
-	// if !exist {
-	// 	AppendPeer(source, source)
-	// }
+	if !exist {
+		AppendPeer(source, source)
+	}
 
 	addRecvEvent(receivedAddr, source, time.Now().Format("2006-01-02 15:04:05"))
 }
@@ -125,9 +125,11 @@ func sendSnip(input string) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			conn := sock.InitializeUdpClient(PeerList[i].address)
-			sock.SendMessage(input, conn)
-			currTimeStamp++
+			if sock.CheckAddress(PeerList[i].address) {
+				conn := sock.InitializeUdpClient(PeerList[i].address)
+				sock.SendMessage(input, conn)
+				currTimeStamp++
+			}
 		}(i)
 	}
 	wg.Wait()
@@ -176,10 +178,12 @@ func sendPeerList() {
 				go func(i int) {
 					defer wg.Done()
 					for j := 0; j < len(PeerList); j++ {
-						conn := sock.InitializeUdpClient(PeerList[j].address)
-						sock.SendMessage(PeerList[i].address, conn)
-						currTimeStamp++
-						fmt.Printf("Sent %s to %s\n", PeerList[i].address, PeerList[j].address)
+						if sock.CheckAddress(PeerList[j].address) {
+							conn := sock.InitializeUdpClient(PeerList[j].address)
+							sock.SendMessage(PeerList[i].address, conn)
+							currTimeStamp++
+							fmt.Printf("Sent %s to %s\n", PeerList[i].address, PeerList[j].address)
+						}
 					}
 				}(i)
 			}

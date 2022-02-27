@@ -14,6 +14,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
+	"strings"
 )
 
 // Start the TCP connection to the server
@@ -63,6 +65,18 @@ func ReceiveTcpMessage(conn net.Conn, scanner *bufio.Scanner) string {
 func SendMessage(message string, conn net.Conn) {
 	_, err := conn.Write([]byte(message))
 	checkError(err)
+}
+
+func CheckAddress(addr string) bool {
+	// check if the port number is valid
+	address := strings.Split(addr, ":")
+	if len(address) == 2 {
+		port, _ := strconv.Atoi(address[1])
+		if port > 0 && port < 65536 {
+			return true
+		}
+	}
+	return false
 }
 
 // Check for errors
