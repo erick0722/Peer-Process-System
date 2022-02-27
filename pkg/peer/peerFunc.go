@@ -91,9 +91,9 @@ func addPeer(receivedAddr string, source string) {
 	}
 
 	//add sender to list of received peers
-	if !exist {
-		AppendPeer(source, source)
-	}
+	// if !exist {
+	// 	AppendPeer(source, source)
+	// }
 
 	addRecvEvent(receivedAddr, source, time.Now().Format("2006-01-02 15:04:05"))
 }
