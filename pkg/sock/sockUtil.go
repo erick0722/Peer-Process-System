@@ -36,13 +36,32 @@ func InitializeUdpClient(address string) net.Conn {
 }
 
 // https://varshneyabhi.wordpress.com/2014/12/23/simple-udp-clientserver-in-golang/
-func InitializeUdpServer(address string) *net.UDPConn {
-	fmt.Print("Initializing UDP server...\n")
-	udpAddr, err := net.ResolveUDPAddr("udp", address)
-	checkError(err)
-	conn, err := net.ListenUDP("udp", udpAddr)
-	checkError(err)
-	return conn
+// func InitializeUdpServer(address string) *net.UDPConn {
+// 	fmt.Print("Initializing UDP server...\n")
+// 	udpAddr, err := net.ResolveUDPAddr("udp", address)
+// 	checkError(err)
+// 	conn, err := net.ListenUDP("udp", udpAddr)
+// 	checkError(err)
+// 	return conn
+// }
+
+func InitializeUdpServer(address string) (string, *net.UDPConn) {
+	//continue trying until an available port is found
+	for {
+		fmt.Printf("Trying to initialize UDP server at %s...\n", address)
+		udpAddr, err := net.ResolveUDPAddr("udp", address)
+		checkError(err)
+		conn, err := net.ListenUDP("udp", udpAddr)
+		//checkError(err)
+		if conn != nil {
+			return address, conn
+		} else {
+			addr := strings.Split(address, ":")
+			portNum, _ := strconv.Atoi(addr[1])
+			portNum++
+			address = addr[0] + ":" + strconv.Itoa(portNum)
+		}
+	}
 }
 
 func ReceiveUdpMessage(address string, conn *net.UDPConn) (string, string) {

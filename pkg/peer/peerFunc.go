@@ -45,7 +45,7 @@ var SnipList []snip
 var currTimeStamp int = 0
 
 func InitPeerProcess(address string) {
-	conn := sock.InitializeUdpServer(address)
+	address, conn := sock.InitializeUdpServer(address)
 
 	go readSnip()
 	go sendPeerList()
