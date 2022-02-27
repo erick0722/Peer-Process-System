@@ -51,6 +51,8 @@ func InitPeerProcess(address string) {
 	go sendPeerList()
 	//go checkInactivePeers()
 
+	PeerList = append(PeerList, peerStruct{address, address, time.Now().Format("2006-01-02 15:04:05")})
+
 	for {
 		msg, addr := sock.ReceiveUdpMessage(address, conn)
 		fmt.Println("Received ", msg, " from ", addr)
@@ -73,7 +75,7 @@ func InitPeerProcess(address string) {
 
 func AppendPeer(peer string, source string) {
 	PeerList = append(PeerList, peerStruct{peer, source, time.Now().Format("2006-01-02 15:04:05")})
-	//fmt.Printf("Appended %s, %s\n", PeerList[len(PeerList)-1].address, PeerList[len(PeerList)-1].source)
+	fmt.Printf("Appended %s, %s\n", PeerList[len(PeerList)-1].address, PeerList[len(PeerList)-1].source)
 }
 
 func searchPeerList(peer string) (bool, int) {
@@ -169,7 +171,7 @@ func checkInactivePeers() {
 					diff, _ := time.Parse("2006-01-02 15:04:05", PeerList[i].lastHeard)
 					if time.Since(diff) >= 10*time.Second {
 						fmt.Printf("Removing peer %s\n", PeerList[i].address)
-						//PeerList = append(PeerList[:i], PeerList[i+1:]...)
+						PeerList = append(PeerList[:i], PeerList[i+1:]...)
 					}
 				}(i)
 			}
