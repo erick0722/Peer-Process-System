@@ -143,9 +143,8 @@ func storeSnip(msg string, source string) {
 	_, index := searchPeerList(source)
 	if index != -1 {
 		PeerList[index].lastHeard = time.Now().Format("2006-01-02 15:04:05")
-	}if !exist {
-		AppendPeer(source, source)
 	}
+
 	fmt.Printf("Received Snip %d: %s, %s from %s\n", len(SnipList)-1, SnipList[len(SnipList)-1].content, SnipList[len(SnipList)-1].timeStamp, SnipList[len(SnipList)-1].source)
 }
 
