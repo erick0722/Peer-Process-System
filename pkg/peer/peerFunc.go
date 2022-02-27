@@ -51,7 +51,7 @@ func InitPeerProcess(address string) {
 	go sendPeerList()
 	//go checkInactivePeers()
 
-	PeerList = append(PeerList, peerStruct{address, address, time.Now().Format("2006-01-02 15:04:05")})
+	PeerList = append(PeerList, peerStruct{address, address, ""})
 
 	for {
 		msg, addr := sock.ReceiveUdpMessage(address, conn)
@@ -124,21 +124,17 @@ func readSnip() {
 func sendSnip(input string) {
 	var wg sync.WaitGroup
 
-	fmt.Printf("TimeStamp: %d\n", currTimeStamp)
-
 	currTimeStampStr := strconv.Itoa(currTimeStamp)
-	fmt.Printf("Converted TimeStamp: %s\n", currTimeStampStr)
 
 	input = "snip" + currTimeStampStr + " " + input
-	fmt.Printf("Sending snip: %s\n", input)
-	for i := 0; i < len(PeerList); i++ {
+	for i := 1; i < len(PeerList); i++ {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
 			if sock.CheckAddress(PeerList[i].address) {
 				conn := sock.InitializeUdpClient(PeerList[i].address)
 				sock.SendMessage(input, conn)
-				fmt.Printf("Sent snip to %s\n", PeerList[i].address)
+				fmt.Printf("Sent [%s] to %s\n", input, PeerList[i].address)
 			}
 		}(i)
 	}
@@ -148,15 +144,13 @@ func sendSnip(input string) {
 }
 
 func storeSnip(msg string, source string) {
-	//get everything after the first character of msg
-
 	SnipList = append(SnipList, snip{msg[1:], string(msg[0]), source})
 	_, index := searchPeerList(source)
 	if index != -1 {
 		PeerList[index].lastHeard = time.Now().Format("2006-01-02 15:04:05")
 	}
 
-	fmt.Printf("Received Snip %d: %s, %s from %s\n", len(SnipList)-1, SnipList[len(SnipList)-1].content, SnipList[len(SnipList)-1].timeStamp, SnipList[len(SnipList)-1].source)
+	fmt.Printf("Received %s from %s at timeStamp %s\n", SnipList[len(SnipList)-1].content, SnipList[len(SnipList)-1].source, SnipList[len(SnipList)-1].timeStamp)
 }
 
 func checkInactivePeers() {
@@ -168,10 +162,12 @@ func checkInactivePeers() {
 				wg.Add(1)
 				go func(i int) {
 					defer wg.Done()
-					diff, _ := time.Parse("2006-01-02 15:04:05", PeerList[i].lastHeard)
-					if time.Since(diff) >= 10*time.Second {
-						fmt.Printf("Removing peer %s\n", PeerList[i].address)
-						PeerList = append(PeerList[:i], PeerList[i+1:]...)
+					if PeerList[i].lastHeard != "" {
+						diff, _ := time.Parse("2006-01-02 15:04:05", PeerList[i].lastHeard)
+						if time.Since(diff) >= 10*time.Second {
+							fmt.Printf("Removing peer %s\n", PeerList[i].address)
+							PeerList = append(PeerList[:i], PeerList[i+1:]...)
+						}
 					}
 				}(i)
 			}

@@ -35,16 +35,6 @@ func InitializeUdpClient(address string) net.Conn {
 	return conn
 }
 
-// https://varshneyabhi.wordpress.com/2014/12/23/simple-udp-clientserver-in-golang/
-// func InitializeUdpServer(address string) *net.UDPConn {
-// 	fmt.Print("Initializing UDP server...\n")
-// 	udpAddr, err := net.ResolveUDPAddr("udp", address)
-// 	checkError(err)
-// 	conn, err := net.ListenUDP("udp", udpAddr)
-// 	checkError(err)
-// 	return conn
-// }
-
 func InitializeUdpServer(address string) (string, *net.UDPConn) {
 	//continue trying until an available port is found
 	for {
@@ -53,7 +43,7 @@ func InitializeUdpServer(address string) (string, *net.UDPConn) {
 		checkError(err)
 		conn, err := net.ListenUDP("udp", udpAddr)
 		//checkError(err)
-		if conn != nil {
+		if conn != nil && err == nil {
 			return address, conn
 		} else {
 			addr := strings.Split(address, ":")
