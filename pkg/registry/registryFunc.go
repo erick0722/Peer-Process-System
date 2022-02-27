@@ -59,7 +59,7 @@ forLoop:
 
 		case strings.Contains(serverReply, "get location"):
 			clientMessage = "Sending udp server location...\n"
-			sock.SendMessage(peerAddress, conn)
+			sock.SendMessage(peerAddress+"\n", conn)
 
 		case strings.Contains(serverReply, "receive peers"):
 			registry.address = regAddress
