@@ -14,6 +14,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -120,8 +121,12 @@ func readSnip() {
 
 func sendSnip(input string) {
 	var wg sync.WaitGroup
-	//convert currTimeStamp into string
-	currTimeStampStr := string(currTimeStamp)
+
+	fmt.Printf("TimeStamp: %d\n", currTimeStamp)
+
+	currTimeStampStr := strconv.Itoa(currTimeStamp)
+	fmt.Printf("Converted TimeStamp: %s\n", currTimeStampStr)
+
 	input = "snip" + currTimeStampStr + " " + input
 	fmt.Printf("Sending snip: %s\n", input)
 	for i := 0; i < len(PeerList); i++ {
@@ -132,11 +137,12 @@ func sendSnip(input string) {
 				conn := sock.InitializeUdpClient(PeerList[i].address)
 				sock.SendMessage(input, conn)
 				fmt.Printf("Sent snip to %s\n", PeerList[i].address)
-				currTimeStamp++
 			}
 		}(i)
 	}
 	wg.Wait()
+	currTimeStamp++
+
 }
 
 func storeSnip(msg string, source string) {
@@ -186,13 +192,14 @@ func sendPeerList() {
 						if sock.CheckAddress(PeerList[j].address) {
 							conn := sock.InitializeUdpClient(PeerList[j].address)
 							sock.SendMessage(PeerList[i].address, conn)
-							currTimeStamp++
 							//fmt.Printf("Sent %s to %s\n", PeerList[i].address, PeerList[j].address)
 						}
 					}
 				}(i)
 			}
 			wg.Wait()
+			currTimeStamp++
+
 		}
 	}
 }
