@@ -36,22 +36,28 @@ func InitializeUdpClient(address string) net.Conn {
 }
 
 func InitializeUdpServer(address string) (string, *net.UDPConn) {
-	//continue trying until an available port is found
-	for {
-		fmt.Printf("Trying to initialize UDP server at %s...\n", address)
-		udpAddr, err := net.ResolveUDPAddr("udp", address)
+	fmt.Printf("Initializing UDP server on %s\n", address)
+	udpAddr, err := net.ResolveUDPAddr("udp", address)
 		checkError(err)
 		conn, err := net.ListenUDP("udp", udpAddr)
-		//checkError(err)
-		if conn != nil && err == nil {
-			return address, conn
-		} else {
-			addr := strings.Split(address, ":")
-			portNum, _ := strconv.Atoi(addr[1])
-			portNum++
-			address = addr[0] + ":" + strconv.Itoa(portNum)
-		}
-	}
+		checkError(err)
+		return address, conn
+	//continue trying until an available port is found
+	// for {
+	// 	fmt.Printf("Trying to initialize UDP server at %s...\n", address)
+	// 	udpAddr, err := net.ResolveUDPAddr("udp", address)
+	// 	checkError(err)
+	// 	conn, err := net.ListenUDP("udp", udpAddr)
+	// 	//checkError(err)
+	// 	if conn != nil && err == nil {
+	// 		return address, conn
+	// 	} else {
+	// 		addr := strings.Split(address, ":")
+	// 		portNum, _ := strconv.Atoi(addr[1])
+	// 		portNum++
+	// 		address = addr[0] + ":" + strconv.Itoa(portNum)
+	// 	}
+	// }
 }
 
 func ReceiveUdpMessage(address string, conn *net.UDPConn) (string, string, error) {

@@ -93,6 +93,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 		case <-ctx.Done():
 			return
 		default:
+			fmt.Printf("Waiting for message\n")
 			msg, addr, err := sock.ReceiveUdpMessage(address, conn)
 			fmt.Println("Received ", msg, " from ", addr)
 			if err != nil {
