@@ -58,9 +58,11 @@ func ReceiveUdpMessage(address string, conn *net.UDPConn) (string, string) {
 
 	// Read from the connection
 	data := make([]byte, 1024)
-	_, addr, err := conn.ReadFromUDP(data)
+	len, addr, err := conn.ReadFromUDP(data)
 	checkError(err)
-	return string(data), addr.String()
+	msg := strings.TrimSpace(string(data[:len]))
+
+	return msg, addr.String()
 
 }
 

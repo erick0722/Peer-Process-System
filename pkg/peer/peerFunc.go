@@ -45,13 +45,26 @@ var SnipList []snip
 var currTimeStamp int = 0
 
 func InitPeerProcess(address string) {
-	address, conn := sock.InitializeUdpServer(address)
+
+	PeerList = append(PeerList, peerStruct{address, address, ""})
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		handleMessage(address)
+	}()
 
 	go readSnip()
 	go sendPeerList()
 	//go checkInactivePeers()
 
-	PeerList = append(PeerList, peerStruct{address, address, ""})
+	wg.Wait()
+
+}
+
+func handleMessage(address string) {
+	address, conn := sock.InitializeUdpServer(address)
 
 	for {
 		msg, addr := sock.ReceiveUdpMessage(address, conn)
