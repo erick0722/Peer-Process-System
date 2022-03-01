@@ -12,14 +12,19 @@ package main
 import (
 	"559Project/pkg/peer"
 	"559Project/pkg/registry"
+	"context"
 	"fmt"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 )
 
 func main() {
 
 	var regAddr, peerAddr string
 	var wg sync.WaitGroup
+	ctx, cancel := context.WithCancel(context.Background())
 
 	//ask for the registry and peer process' address
 	fmt.Println("Please enter the registry's address: ")
@@ -34,17 +39,27 @@ func main() {
 	wg.Add(2)
 
 	go func() {
-		registry.InitRegistryCommunicator(regAddr, peerAddr)
+		defer wg.Done()
+		registry.InitRegistryCommunicator(regAddr, peerAddr, ctx)
 		fmt.Println("Registry Communicator exited")
-		wg.Done()
 	}()
 
 	go func() {
-		peer.InitPeerProcess(peerAddr)
+		defer wg.Done()
+		peer.InitPeerProcess(peerAddr, ctx, cancel)
 		fmt.Println("Peer Process exited")
-		wg.Done()
 	}()
 
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(s, os.Interrupt, os.Kill)
+	select {
+	case <-s:
+		fmt.Println("\nReceived SIGINT/SIGTERM. Exiting gracefully...")
+		cancel()
+	case <-ctx.Done():
+		fmt.Println("\nContext cancelled. Exiting gracefully...")
+	}
 	wg.Wait()
 }
 

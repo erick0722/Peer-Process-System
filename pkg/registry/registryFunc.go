@@ -14,6 +14,7 @@ import (
 	"559Project/pkg/peer"
 	"559Project/pkg/sock"
 	"bufio"
+	"context"
 	"fmt"
 	"net"
 	"strconv"
@@ -29,7 +30,7 @@ type regServer struct {
 	timeReceived string // TODO: Change to Datetime type later
 }
 
-func InitRegistryCommunicator(regAddress string, peerAddress string) {
+func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context.Context) {
 	conn := sock.InitializeTcpClient(regAddress)
 	fmt.Printf("Connected to server at %s\n", regAddress)
 
@@ -38,50 +39,62 @@ func InitRegistryCommunicator(regAddress string, peerAddress string) {
 
 	var teamName string = "It Takes Two\n" // Our team name
 
-forLoop:
+	go func() {
+		<-ctx.Done()
+		conn.Close()
+	}()
+
 	for {
-		serverReply := sock.ReceiveTcpMessage(conn, scanner)
-
-		var clientMessage string
-
-		fmt.Printf("Server message = %s\n", serverReply)
-
-		// Check the server's response and take corresponding actions
-		switch {
-		case strings.Contains(serverReply, "get team name"):
-			clientMessage = "Sending team name...\n"
-			sock.SendMessage(teamName, conn)
-
-		case strings.Contains(serverReply, "get code"):
-			clientMessage = "Sending code...\n"
-			codeResponse := fileIO.ParseCodeResponse()
-			sock.SendMessage(codeResponse, conn)
-
-		case strings.Contains(serverReply, "get location"):
-			clientMessage = "Sending udp server location...\n"
-			sock.SendMessage(peerAddress+"\n", conn)
-
-		case strings.Contains(serverReply, "receive peers"):
-			registry.address = regAddress
-			receivePeers(&registry, conn, scanner)
-			clientMessage = "Storing peers...\n"
-
-		case strings.Contains(serverReply, "get report"):
-			//TODO: update this
-			clientMessage = "Sending report...\n"
-			report := generateReport(registry)
-			sock.SendMessage(report, conn)
-
-		case strings.Contains(serverReply, "close"):
-			fmt.Printf("%s", "Closing...\n")
+		select {
+		case <-ctx.Done():
+			fmt.Printf("Closing connection to registry at %s\n", regAddress)
 			conn.Close()
-			break forLoop
-
+			return
 		default:
-			clientMessage = "Unknown message\n"
-		}
 
-		fmt.Printf("%s", clientMessage)
+			serverReply := sock.ReceiveTcpMessage(conn, scanner)
+
+			var clientMessage string
+
+			fmt.Printf("Server message = %s\n", serverReply)
+
+			// Check the server's response and take corresponding actions
+			switch {
+			case strings.Contains(serverReply, "get team name"):
+				clientMessage = "Sending team name...\n"
+				sock.SendMessage(teamName, conn)
+
+			case strings.Contains(serverReply, "get code"):
+				clientMessage = "Sending code...\n"
+				codeResponse := fileIO.ParseCodeResponse()
+				sock.SendMessage(codeResponse, conn)
+
+			case strings.Contains(serverReply, "get location"):
+				clientMessage = "Sending udp server location...\n"
+				sock.SendMessage(peerAddress+"\n", conn)
+
+			case strings.Contains(serverReply, "receive peers"):
+				registry.address = regAddress
+				receivePeers(&registry, conn, scanner)
+				clientMessage = "Storing peers...\n"
+
+			case strings.Contains(serverReply, "get report"):
+				//TODO: update this
+				clientMessage = "Sending report...\n"
+				report := generateReport(registry)
+				sock.SendMessage(report, conn)
+
+			case strings.Contains(serverReply, "close"):
+				fmt.Printf("%s", "Closing...\n")
+				conn.Close()
+				return
+
+			default:
+				clientMessage = "Unknown message\n"
+			}
+
+			fmt.Printf("%s", clientMessage)
+		}
 	}
 }
 

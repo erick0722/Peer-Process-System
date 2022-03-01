@@ -54,15 +54,18 @@ func InitializeUdpServer(address string) (string, *net.UDPConn) {
 	}
 }
 
-func ReceiveUdpMessage(address string, conn *net.UDPConn) (string, string) {
+func ReceiveUdpMessage(address string, conn *net.UDPConn) (string, string, error) {
 
 	// Read from the connection
 	data := make([]byte, 1024)
 	len, addr, err := conn.ReadFromUDP(data)
-	checkError(err)
+	//checkError(err)
+	if err != nil {
+		return "", "", err
+	}
 	msg := strings.TrimSpace(string(data[:len]))
 
-	return msg, addr.String()
+	return msg, addr.String(), nil
 
 }
 
@@ -96,6 +99,10 @@ func checkError(err error) {
 		println("Error detected, exiting...", err.Error())
 		os.Exit(1)
 	}
+}
+
+func CloseUDP(conn *net.UDPConn) {
+	conn.Close()
 }
 
 // =============================================================
