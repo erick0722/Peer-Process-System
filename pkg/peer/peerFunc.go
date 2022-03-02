@@ -193,6 +193,7 @@ func sendSnip(input string) {
 			if PeerList[i].address != peerProcessAddr {
 			conn := sock.InitializeUdpClient(PeerList[i].address)
 			sock.SendMessage(input, conn)
+			conn.Close()
 			fmt.Printf("Sent [%s] to %s\n", input, PeerList[i].address)
 		}
 	}
@@ -272,6 +273,7 @@ func sendPeerList(ctx context.Context) {
 						if PeerList[j].address != peerProcessAddr {
 						conn := sock.InitializeUdpClient(PeerList[j].address)
 						sock.SendMessage("peer"+PeerList[i].address, conn)
+						conn.Close()
 						//fmt.Printf("Sent %s to %s\n", PeerList[i].address, PeerList[j].address)
 					}
 				}
