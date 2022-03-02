@@ -105,7 +105,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 		default:
 			//fmt.Printf("Waiting for message\n")
 			msg, addr, err := sock.ReceiveUdpMessage(address, conn)
-			fmt.Println("Received ", msg, " from ", addr)
+			//fmt.Println("Received ", msg, " from ", addr)
 			if err != nil {
 				fmt.Printf("Error detected: %v\n", err)
 				continue
@@ -263,7 +263,7 @@ func sendPeerList(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-time.After(8 * time.Second):
+		case <-time.After(6 * time.Second):
 		}
 
 		if len(PeerList) > 0 {
