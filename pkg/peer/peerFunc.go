@@ -103,6 +103,13 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 				fmt.Printf("Error detected: %v\n", err)
 				continue
 			}
+
+			index := searchPeerList(addr)
+			if index != -1 {
+				PeerList[index].active = true
+				PeerList[index].lastHeard = time.Now()
+			}
+
 			switch string(msg[0:4]) {
 			case "stop":
 				fmt.Printf("Received stop command, exiting...\n")
@@ -127,24 +134,24 @@ func AppendPeer(peer string, source string) {
 	//fmt.Printf("Appended %s, %s\n", PeerList[len(PeerList)-1].address, PeerList[len(PeerList)-1].source)
 }
 
-func searchPeerList(peer string) (bool, int) {
+func searchPeerList(peer string) (int) {
 	for i := 0; i < len(PeerList); i++ {
 		if PeerList[i].address == peer {
-			return true, i
+			return i
 		}
 	}
-	return false, -1
+	return -1
 }
 
 func addPeer(receivedAddr string, source string) {
-	peerExist, _ := searchPeerList(receivedAddr)
-	sourceExist, _ := searchPeerList(source)
-	if !peerExist {
+	peerIndex := searchPeerList(receivedAddr)
+	sourceIndex := searchPeerList(source)
+	if peerIndex == -1 {
 		AppendPeer(receivedAddr, source)
 	}
 
 	//add sender to list of received peers
-	if !sourceExist {
+	if sourceIndex == -1 {
 		AppendPeer(source, source)
 	}
 
@@ -195,7 +202,7 @@ func sendSnip(input string) {
 func storeSnip(msg string, source string) {
 	message := strings.Split(msg, " ")
 	SnipList = append(SnipList, snip{message[1], message[0], source})
-	_, index := searchPeerList(source)
+	index := searchPeerList(source)
 	if index != -1 {
 		PeerList[index].lastHeard = time.Now()
 		PeerList[index].active = true
