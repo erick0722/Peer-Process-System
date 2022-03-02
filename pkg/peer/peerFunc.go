@@ -178,8 +178,9 @@ func readSnip(ctx context.Context) {
 func sendSnip(input string) {
 
 	currTimeStampStr := strconv.Itoa(currTimeStamp)
-
 	input = "snip" + currTimeStampStr + " " + input
+	currTimeStamp++
+
 	for i := 1; i < len(PeerList); i++ {
 		if sock.CheckAddress(PeerList[i].address) && PeerList[i].active {
 			if PeerList[i].address != peerProcessAddr {
@@ -189,7 +190,6 @@ func sendSnip(input string) {
 		}
 	}
 	}
-	currTimeStamp++
 }
 
 func storeSnip(msg string, source string) {
@@ -201,6 +201,11 @@ func storeSnip(msg string, source string) {
 		PeerList[index].active = true
 	}
 
+	//convert message[0] to int
+	timeStamp, _ := strconv.Atoi(message[0])
+
+	currTimeStamp = Math.Max(currTimeStamp, timeStamp)
+	
 	fmt.Printf("Received %s from %s at timeStamp %s\n", SnipList[len(SnipList)-1].content, SnipList[len(SnipList)-1].source, SnipList[len(SnipList)-1].timeStamp)
 }
 
@@ -245,6 +250,7 @@ func sendPeerList(ctx context.Context) {
 		}
 
 		if len(PeerList) > 0 {
+			currTimeStamp++
 			for i := 0; i < len(PeerList); i++ {
 				//send peerlist to everyone
 				for j := 0; j < len(PeerList); j++ {
@@ -257,7 +263,6 @@ func sendPeerList(ctx context.Context) {
 				}
 				}
 			}
-			currTimeStamp++
 			fmt.Printf("Sent peerlist at timeStamp %d\n", currTimeStamp)
 		}
 	}
