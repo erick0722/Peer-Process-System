@@ -31,13 +31,7 @@ type peerStruct struct {
 type receivedEvent struct {
 	received     string
 	source       string
-	timeReceived time.Time
-}
-
-type sentEvent struct {
-	sentTo   string
-	peer     string
-	timeSent time.Time
+	timeReceived string
 }
 
 type snip struct {
@@ -48,7 +42,6 @@ type snip struct {
 
 var PeerList []peerStruct
 var RecievedPeers []receivedEvent
-var PeersSent []sentEvent
 var SnipList []snip
 
 var peerProcessAddr string
@@ -162,7 +155,12 @@ func addPeer(receivedAddr string, source string) {
 		AppendPeer(source, source)
 	}
 
-	RecievedPeers = append(RecievedPeers, receivedEvent{receivedAddr, source, time.Now()})
+	addRecvEvent(receivedAddr, source, time.Now().Format("2006-01-02 15:04:05"))
+}
+
+func addRecvEvent(receivedAddr string, source string, timeReceived string) {
+	RecievedPeers = append(RecievedPeers, receivedEvent{receivedAddr, source, timeReceived})
+	//fmt.Printf("Received Peer %d: %s, %s\n", len(RecievedPeers)-1, RecievedPeers[len(RecievedPeers)-1].received, RecievedPeers[len(RecievedPeers)-1].timeReceived)
 }
 
 func readSnip(ctx context.Context) {
@@ -276,7 +274,7 @@ func sendPeerList(ctx context.Context) {
 							conn := sock.InitializeUdpClient(PeerList[j].address)
 							sock.SendMessage("peer"+PeerList[i].address, conn)
 							conn.Close()
-							PeersSent = append(PeersSent, sentEvent{PeerList[i].address, PeerList[j].address, time.Now()})
+							//fmt.Printf("Sent %s to %s\n", PeerList[i].address, PeerList[j].address)
 						}
 					}
 				}

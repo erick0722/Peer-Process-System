@@ -27,14 +27,14 @@ type regServer struct {
 	address      string
 	peerList     []string
 	peerNum      int
-	timeReceived string // TODO: Change to Datetime type later
+	timeReceived time.Time
 }
 
 func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context.Context) {
 	conn := sock.InitializeTcpClient(regAddress)
 	fmt.Printf("Connected to server at %s\n", regAddress)
 
-	var registry regServer = regServer{"", []string{}, 0, ""}
+	var registry regServer = regServer{regAddress, []string{}, 0, time.Now()}
 	scanner := bufio.NewScanner(conn)
 
 	var teamName string = "It Takes Two\n" // Our team name
@@ -123,7 +123,7 @@ func receivePeers(server *regServer, conn net.Conn, scanner *bufio.Scanner) {
 
 	}
 
-	server.timeReceived = time.Now().Format("2006-01-02 15:04:05")
+	server.timeReceived = time.Now()
 
 }
 
