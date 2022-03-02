@@ -31,7 +31,7 @@ type peerStruct struct {
 type receivedEvent struct {
 	received     string
 	source       string
-	timeReceived time.Time
+	timeReceived string
 }
 
 type sentEvent struct {
@@ -105,7 +105,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 		default:
 			fmt.Printf("Waiting for message\n")
 			msg, addr, err := sock.ReceiveUdpMessage(address, conn)
-			fmt.Println("Received ", msg, " from ", addr)
+			//fmt.Println("Received ", msg, " from ", addr)
 			if err != nil {
 				fmt.Printf("Error detected: %v\n", err)
 				continue
@@ -162,7 +162,7 @@ func addPeer(receivedAddr string, source string) {
 		AppendPeer(source, source)
 	}
 
-	RecievedPeers = append(RecievedPeers, receivedEvent{receivedAddr, source, time.Now()})
+	RecievedPeers = append(RecievedPeers, receivedEvent{receivedAddr, source, time.Now().Format("2006-01-02 15:04:05")})
 }
 
 func readSnip(ctx context.Context) {
