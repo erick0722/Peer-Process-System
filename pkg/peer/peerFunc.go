@@ -122,7 +122,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 			case "stop":
 				fmt.Printf("Received stop command, exiting...\n")
 				sock.CloseUDP(conn)
-				//cancel()
+				cancel()
 				return
 			case "snip":
 				//fmt.Println("Storing snippet...")
