@@ -31,7 +31,13 @@ type peerStruct struct {
 type receivedEvent struct {
 	received     string
 	source       string
-	timeReceived string
+	timeReceived time.Time
+}
+
+type sentEvent struct {
+	sentTo   string
+	peer     string
+	timeSent time.Time
 }
 
 type snip struct {
@@ -42,6 +48,7 @@ type snip struct {
 
 var PeerList []peerStruct
 var RecievedPeers []receivedEvent
+var PeersSent []sentEvent
 var SnipList []snip
 
 var peerProcessAddr string
@@ -134,7 +141,7 @@ func AppendPeer(peer string, source string) {
 	//fmt.Printf("Appended %s, %s\n", PeerList[len(PeerList)-1].address, PeerList[len(PeerList)-1].source)
 }
 
-func searchPeerList(peer string) (int) {
+func searchPeerList(peer string) int {
 	for i := 0; i < len(PeerList); i++ {
 		if PeerList[i].address == peer {
 			return i
@@ -155,12 +162,7 @@ func addPeer(receivedAddr string, source string) {
 		AppendPeer(source, source)
 	}
 
-	addRecvEvent(receivedAddr, source, time.Now().Format("2006-01-02 15:04:05"))
-}
-
-func addRecvEvent(receivedAddr string, source string, timeReceived string) {
-	RecievedPeers = append(RecievedPeers, receivedEvent{receivedAddr, source, timeReceived})
-	//fmt.Printf("Received Peer %d: %s, %s\n", len(RecievedPeers)-1, RecievedPeers[len(RecievedPeers)-1].received, RecievedPeers[len(RecievedPeers)-1].timeReceived)
+	RecievedPeers = append(RecievedPeers, receivedEvent{receivedAddr, source, time.Now()})
 }
 
 func readSnip(ctx context.Context) {
@@ -191,12 +193,12 @@ func sendSnip(input string) {
 	for i := 1; i < len(PeerList); i++ {
 		if sock.CheckAddress(PeerList[i].address) && PeerList[i].active {
 			if PeerList[i].address != peerProcessAddr {
-			conn := sock.InitializeUdpClient(PeerList[i].address)
-			sock.SendMessage(input, conn)
-			conn.Close()
-			fmt.Printf("Sent [%s] to %s\n", input, PeerList[i].address)
+				conn := sock.InitializeUdpClient(PeerList[i].address)
+				sock.SendMessage(input, conn)
+				conn.Close()
+				fmt.Printf("Sent [%s] to %s\n", input, PeerList[i].address)
+			}
 		}
-	}
 	}
 }
 
@@ -213,7 +215,7 @@ func storeSnip(msg string, source string) {
 	timeStamp, _ := strconv.Atoi(message[0])
 
 	currTimeStamp = findMax(currTimeStamp, timeStamp)
-	
+
 	fmt.Printf("Received %s from %s at timeStamp %s\n", SnipList[len(SnipList)-1].content, SnipList[len(SnipList)-1].source, SnipList[len(SnipList)-1].timeStamp)
 }
 
@@ -238,12 +240,12 @@ func checkInactivePeers(ctx context.Context, ch chan bool) {
 		if len(PeerList) > 0 {
 			for i := 0; i < len(PeerList); i++ {
 				if PeerList[i].address != peerProcessAddr {
-				if time.Since(PeerList[i].lastHeard) > 10*time.Second && PeerList[i].active {
-					fmt.Printf("Peer %s inactive, removing...\n", PeerList[i].address)
-					//PeerList = append(PeerList[:i], PeerList[i+1:]...)
-					PeerList[i].active = false
+					if time.Since(PeerList[i].lastHeard) > 10*time.Second && PeerList[i].active {
+						fmt.Printf("Peer %s inactive, removing...\n", PeerList[i].address)
+						//PeerList = append(PeerList[:i], PeerList[i+1:]...)
+						PeerList[i].active = false
+					}
 				}
-			}
 			}
 			for i := 0; i < len(PeerList); i++ {
 				if !PeerList[i].active {
@@ -271,12 +273,12 @@ func sendPeerList(ctx context.Context) {
 				for j := 0; j < len(PeerList); j++ {
 					if sock.CheckAddress(PeerList[j].address) && PeerList[j].active {
 						if PeerList[j].address != peerProcessAddr {
-						conn := sock.InitializeUdpClient(PeerList[j].address)
-						sock.SendMessage("peer"+PeerList[i].address, conn)
-						conn.Close()
-						//fmt.Printf("Sent %s to %s\n", PeerList[i].address, PeerList[j].address)
+							conn := sock.InitializeUdpClient(PeerList[j].address)
+							sock.SendMessage("peer"+PeerList[i].address, conn)
+							conn.Close()
+							PeersSent = append(PeersSent, sentEvent{PeerList[i].address, PeerList[j].address, time.Now()})
+						}
 					}
-				}
 				}
 			}
 			fmt.Printf("Sent peerlist at timeStamp %d\n", currTimeStamp)
