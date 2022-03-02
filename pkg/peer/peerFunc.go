@@ -57,7 +57,7 @@ var currTimeStamp = 0
 func InitPeerProcess(address string, ctx context.Context, cancel context.CancelFunc) {
 
 	peerProcessAddr = address
-	//fmt.Printf("Peer process started at %s\n", peerProcessAddr)
+	fmt.Printf("Peer process started at %s\n", peerProcessAddr)
 	PeerList = append(PeerList, peerStruct{peerProcessAddr, peerProcessAddr, true, time.Now()})
 	var wg sync.WaitGroup
 	var ch = make(chan bool)
@@ -103,9 +103,9 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 		case <-ctx.Done():
 			return
 		default:
-			//fmt.Printf("Waiting for message\n")
+			fmt.Printf("Waiting for message\n")
 			msg, addr, err := sock.ReceiveUdpMessage(address, conn)
-			//fmt.Println("Received ", msg, " from ", addr)
+			fmt.Println("Received ", msg, " from ", addr)
 			if err != nil {
 				fmt.Printf("Error detected: %v\n", err)
 				continue
@@ -196,7 +196,7 @@ func sendSnip(input string) {
 				conn := sock.InitializeUdpClient(PeerList[i].address)
 				sock.SendMessage(input, conn)
 				conn.Close()
-				//fmt.Printf("Sent [%s] to %s\n", input, PeerList[i].address)
+				fmt.Printf("Sent [%s] to %s\n", input, PeerList[i].address)
 			}
 		}
 	}
@@ -241,7 +241,7 @@ func checkInactivePeers(ctx context.Context, ch chan bool) {
 			for i := 0; i < len(PeerList); i++ {
 				if PeerList[i].address != peerProcessAddr {
 					if time.Since(PeerList[i].lastHeard) > 10*time.Second && PeerList[i].active {
-						//fmt.Printf("Peer %s inactive, removing...\n", PeerList[i].address)
+						fmt.Printf("Peer %s inactive, removing...\n", PeerList[i].address)
 						//PeerList = append(PeerList[:i], PeerList[i+1:]...)
 						PeerList[i].active = false
 					}
@@ -281,7 +281,7 @@ func sendPeerList(ctx context.Context) {
 					}
 				}
 			}
-			//fmt.Printf("Sent peerlist at timeStamp %d\n", currTimeStamp)
+			fmt.Printf("Sent peerlist at timeStamp %d\n", currTimeStamp)
 		}
 	}
 }
