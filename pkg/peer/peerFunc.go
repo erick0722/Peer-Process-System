@@ -45,7 +45,7 @@ var RecievedPeers []receivedEvent
 var SnipList []snip
 
 var peerProcessAddr string
-var currTimeStamp int = 0
+var currTimeStamp = 0
 
 func InitPeerProcess(address string, ctx context.Context, cancel context.CancelFunc) {
 
@@ -204,9 +204,16 @@ func storeSnip(msg string, source string) {
 	//convert message[0] to int
 	timeStamp, _ := strconv.Atoi(message[0])
 
-	currTimeStamp = Math.Max(currTimeStamp, timeStamp)
+	currTimeStamp = findMax(currTimeStamp, timeStamp)
 	
 	fmt.Printf("Received %s from %s at timeStamp %s\n", SnipList[len(SnipList)-1].content, SnipList[len(SnipList)-1].source, SnipList[len(SnipList)-1].timeStamp)
+}
+
+func findMax(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 func checkInactivePeers(ctx context.Context, ch chan bool) {
