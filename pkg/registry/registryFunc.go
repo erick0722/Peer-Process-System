@@ -11,6 +11,7 @@ package registry
 
 import (
 	"559Project/pkg/fileIO"
+	"559Project/pkg/peer"
 	"559Project/pkg/sock"
 	"bufio"
 	"context"
@@ -115,6 +116,7 @@ func receivePeers(server *regServer, conn net.Conn, scanner *bufio.Scanner) {
 			server.peerList = append(server.peerList, peerAddr)
 			server.peerNum++
 			fmt.Printf("%s added to peer list\n", peerAddr)
+			peer.AppendPeer(peerAddr, "localhost:55921")
 		} else {
 			fmt.Printf("%s already in peer list\n", peerAddr)
 		}
