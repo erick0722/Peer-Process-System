@@ -64,7 +64,9 @@ func ReceiveUdpMessage(address string, conn *net.UDPConn) (string, string, error
 
 	// Read from the connection
 	data := make([]byte, 1024)
+	fmt.Printf("Reading Chris\n")
 	len, addr, err := conn.ReadFromUDP(data)
+	fmt.Printf("Reading Erick\n")
 	//checkError(err)
 	if err != nil {
 		return "", "", err

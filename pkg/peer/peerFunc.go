@@ -44,11 +44,14 @@ var PeerList []peerStruct
 var RecievedPeers []receivedEvent
 var SnipList []snip
 
+var peerProcessAddr string
 var currTimeStamp int = 0
 
 func InitPeerProcess(address string, ctx context.Context, cancel context.CancelFunc) {
 
-	//PeerList = append(PeerList, peerStruct{address, address, ""})
+	peerProcessAddr = address
+	fmt.Printf("Peer process started at %s\n", peerProcessAddr)
+	PeerList = append(PeerList, peerStruct{peerProcessAddr, peerProcessAddr, true, time.Now()})
 	var wg sync.WaitGroup
 	var ch = make(chan bool)
 
@@ -179,13 +182,14 @@ func sendSnip(input string) {
 	input = "snip" + currTimeStampStr + " " + input
 	for i := 1; i < len(PeerList); i++ {
 		if sock.CheckAddress(PeerList[i].address) && PeerList[i].active {
+			if PeerList[i].address != peerProcessAddr {
 			conn := sock.InitializeUdpClient(PeerList[i].address)
 			sock.SendMessage(input, conn)
 			fmt.Printf("Sent [%s] to %s\n", input, PeerList[i].address)
 		}
 	}
+	}
 	currTimeStamp++
-
 }
 
 func storeSnip(msg string, source string) {
@@ -213,12 +217,17 @@ func checkInactivePeers(ctx context.Context, ch chan bool) {
 
 		if len(PeerList) > 0 {
 			for i := 0; i < len(PeerList); i++ {
-
+				if PeerList[i].address != peerProcessAddr {
 				if time.Since(PeerList[i].lastHeard) > 10*time.Second && PeerList[i].active {
-
 					fmt.Printf("Peer %s inactive, removing...\n", PeerList[i].address)
 					//PeerList = append(PeerList[:i], PeerList[i+1:]...)
 					PeerList[i].active = false
+				}
+			}
+			}
+			for i := 0; i < len(PeerList); i++ {
+				if !PeerList[i].active {
+					PeerList = append(PeerList[:i], PeerList[i+1:]...)
 				}
 			}
 		}
@@ -240,10 +249,12 @@ func sendPeerList(ctx context.Context) {
 				//send peerlist to everyone
 				for j := 0; j < len(PeerList); j++ {
 					if sock.CheckAddress(PeerList[j].address) && PeerList[j].active {
+						if PeerList[j].address != peerProcessAddr {
 						conn := sock.InitializeUdpClient(PeerList[j].address)
 						sock.SendMessage("peer"+PeerList[i].address, conn)
 						//fmt.Printf("Sent %s to %s\n", PeerList[i].address, PeerList[j].address)
 					}
+				}
 				}
 			}
 			currTimeStamp++
