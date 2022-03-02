@@ -53,37 +53,38 @@ var SnipList []snip
 
 var peerProcessAddr string
 var currTimeStamp = 0
+var mutex sync.Mutex
 
-func InitPeerProcess(address string, ctx context.Context, cancel context.CancelFunc) {
+func InitPeerProcess(address string, ctx context.Context) {
 
 	peerProcessAddr = address
 	fmt.Printf("Peer process started at %s\n", peerProcessAddr)
 	PeerList = append(PeerList, peerStruct{peerProcessAddr, peerProcessAddr, true, time.Now()})
 	var wg sync.WaitGroup
-	var ch = make(chan bool)
+	peerCtx, cancel := context.WithCancel(ctx)
 
 	wg.Add(4)
 	go func() {
 		defer wg.Done()
-		handleMessage(address, ctx, cancel)
+		handleMessage(address, peerCtx, cancel)
 		fmt.Printf("Exiting handleMessage\n")
 	}()
 
 	go func() {
 		defer wg.Done()
-		readSnip(ctx)
+		readSnip(peerCtx)
 		fmt.Printf("Exiting readSnip\n")
 	}()
 
 	go func() {
 		defer wg.Done()
-		sendPeerList(ctx)
+		sendPeerList(peerCtx)
 		fmt.Printf("Exiting sendPeerList\n")
 	}()
 
 	go func() {
 		defer wg.Done()
-		checkInactivePeers(ctx, ch)
+		checkInactivePeers(peerCtx)
 		fmt.Printf("Exiting checkInactivePeers\n")
 	}()
 
@@ -121,7 +122,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 			case "stop":
 				fmt.Printf("Received stop command, exiting...\n")
 				sock.CloseUDP(conn)
-				cancel()
+				//cancel()
 				return
 			case "snip":
 				//fmt.Println("Storing snippet...")
@@ -189,17 +190,19 @@ func sendSnip(input string) {
 	currTimeStampStr := strconv.Itoa(currTimeStamp)
 	input = "snip" + currTimeStampStr + " " + input
 	currTimeStamp++
-
+	mutex.Lock()
 	for i := 1; i < len(PeerList); i++ {
 		if sock.CheckAddress(PeerList[i].address) && PeerList[i].active {
 			if PeerList[i].address != peerProcessAddr {
 				conn := sock.InitializeUdpClient(PeerList[i].address)
 				sock.SendMessage(input, conn)
 				conn.Close()
-				fmt.Printf("Sent [%s] to %s\n", input, PeerList[i].address)
 			}
 		}
 	}
+	mutex.Unlock()
+	fmt.Printf("Sent [%s] to all peers\n", input)
+
 }
 
 func storeSnip(msg string, source string) {
@@ -226,22 +229,20 @@ func findMax(a int, b int) int {
 	return b
 }
 
-func checkInactivePeers(ctx context.Context, ch chan bool) {
+func checkInactivePeers(ctx context.Context) {
 
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-time.After(10 * time.Second):
-			// case <-ch:
-			// 	continue
 		}
-
+		mutex.Lock()
 		if len(PeerList) > 0 {
 			for i := 0; i < len(PeerList); i++ {
 				if PeerList[i].address != peerProcessAddr {
 					if time.Since(PeerList[i].lastHeard) > 10*time.Second && PeerList[i].active {
-						fmt.Printf("Peer %s inactive, removing...\n", PeerList[i].address)
+						//fmt.Printf("Peer %s inactive, removing...\n", PeerList[i].address)
 						//PeerList = append(PeerList[:i], PeerList[i+1:]...)
 						PeerList[i].active = false
 					}
@@ -252,7 +253,9 @@ func checkInactivePeers(ctx context.Context, ch chan bool) {
 					PeerList = append(PeerList[:i], PeerList[i+1:]...)
 				}
 			}
+			fmt.Printf("Done removing inactive peers\n")
 		}
+		mutex.Unlock()
 	}
 }
 
@@ -265,7 +268,7 @@ func sendPeerList(ctx context.Context) {
 			return
 		case <-time.After(6 * time.Second):
 		}
-
+		mutex.Lock()
 		if len(PeerList) > 0 {
 			currTimeStamp++
 			for i := 0; i < len(PeerList); i++ {
@@ -283,6 +286,7 @@ func sendPeerList(ctx context.Context) {
 			}
 			fmt.Printf("Sent peerlist at timeStamp %d\n", currTimeStamp)
 		}
+		mutex.Unlock()
 	}
 }
 

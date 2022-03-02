@@ -46,8 +46,10 @@ func main() {
 
 	go func() {
 		defer wg.Done()
-		peer.InitPeerProcess(peerAddr, ctx, cancel)
-		fmt.Println("Peer Process exited")
+		peer.InitPeerProcess(peerAddr, ctx)
+		fmt.Println("Peer Process exited, connecting to the registry again")
+		registry.InitRegistryCommunicator(regAddr, peerAddr, ctx)
+		cancel()
 	}()
 
 	s := make(chan os.Signal, 1)
