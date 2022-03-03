@@ -73,7 +73,7 @@ func ConcatRecvPeerList(recvPeerList []receivedEvent) string {
 			"%s %s %s\n", 
 			recvPeerList[i].source, 
 			recvPeerList[i].received, 
-			recvPeerList[i].timeReceived)
+			recvPeerList[i].timeReceived.Format("2006-01-02 15:04:05"))
 	}
 
 	return peerList
@@ -87,7 +87,7 @@ func ConcatPeersSent(peersSent []sentEvent) string {
 			"%s %s %s\n", 
 			peersSent[i].sentTo, 
 			peersSent[i].peer, 
-			peersSent[i].timeSent)
+			peersSent[i].timeSent.Format("2006-01-02 15:04:05"))
 	}
 
 	return peerList
