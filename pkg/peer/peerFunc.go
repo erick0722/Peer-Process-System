@@ -288,10 +288,11 @@ func checkInactivePeers(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-time.After(10 * time.Second):
+		case <-time.After(15 * time.Second):
 		}
 		mutex.Lock()
 		if len(PeerList) > 0 {
+			count = 0
 			for i := 0; i < len(PeerList); i++ {
 				if PeerList[i].address != peerProcessAddr {
 					if time.Since(PeerList[i].lastHeard) > 10*time.Second && PeerList[i].active {
@@ -322,6 +323,7 @@ func sendPeerList(ctx context.Context) {
 		}
 		mutex.Lock()
 		if len(PeerList) > 0 {
+			count = 0
 			currTimeStamp++
 			for i := 0; i < len(PeerList); i++ {
 				//send peerlist to everyone
