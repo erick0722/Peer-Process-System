@@ -70,7 +70,6 @@ func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context
 
 			case strings.Contains(serverReply, "get location"):
 				clientMessage = "Sending udp server location...\n"
-				fmt.Printf("%s\n", peerAddress)
 				sock.SendMessage(peerAddress+"\n", conn)
 
 			case strings.Contains(serverReply, "receive peers"):

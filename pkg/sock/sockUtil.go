@@ -35,32 +35,17 @@ func InitializeUdpClient(address string) net.Conn {
 	return conn
 }
 
-func InitializeUdpServer(address string) (string, *net.UDPConn) {
+func InitializeUdpServer(address string) *net.UDPConn {
 	fmt.Printf("Initializing UDP server on %s\n", address)
 	udpAddr, err := net.ResolveUDPAddr("udp", address)
-		checkError(err)
-		conn, err := net.ListenUDP("udp", udpAddr)
-		checkError(err)
-		return address, conn
-	//continue trying until an available port is found
-	// for {
-	// 	fmt.Printf("Trying to initialize UDP server at %s...\n", address)
-	// 	udpAddr, err := net.ResolveUDPAddr("udp", address)
-	// 	checkError(err)
-	// 	conn, err := net.ListenUDP("udp", udpAddr)
-	// 	//checkError(err)
-	// 	if conn != nil && err == nil {
-	// 		return address, conn
-	// 	} else {
-	// 		addr := strings.Split(address, ":")
-	// 		portNum, _ := strconv.Atoi(addr[1])
-	// 		portNum++
-	// 		address = addr[0] + ":" + strconv.Itoa(portNum)
-	// 	}
-	// }
+	checkError(err)
+	conn, err := net.ListenUDP("udp", udpAddr)
+	checkError(err)
+	return conn
+
 }
 
-func ReceiveUdpMessage(address string, conn *net.UDPConn) (string, string, error) {
+func ReceiveUdpMessage(conn *net.UDPConn) (string, string, error) {
 
 	// Read from the connection
 	data := make([]byte, 1024)

@@ -29,11 +29,9 @@ func main() {
 	//ask for the registry and peer process' address
 	fmt.Println("Please enter the registry's address: ")
 	fmt.Scanln(&regAddr)
-	// regAddr = "localhost:55921"
 
 	fmt.Println("Please enter the peer process's address: ")
 	fmt.Scanln(&peerAddr)
-	// peerAddr = "localhost:3000"
 
 	// Connect to the server via TCP
 	wg.Add(2)

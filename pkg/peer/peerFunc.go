@@ -144,7 +144,7 @@ func InitPeerProcess(address string, ctx context.Context) {
 }
 
 func handleMessage(address string, ctx context.Context, cancel context.CancelFunc) {
-	address, conn := sock.InitializeUdpServer(address)
+	conn := sock.InitializeUdpServer(address)
 
 	go func() {
 		<-ctx.Done()
@@ -156,7 +156,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 			return
 		default:
 			//fmt.Printf("Waiting for message\n")
-			msg, addr, err := sock.ReceiveUdpMessage(address, conn)
+			msg, addr, err := sock.ReceiveUdpMessage(conn)
 			fmt.Println("Received ", msg, " from ", addr)
 			if err != nil {
 				fmt.Printf("Error detected: %v\n", err)
@@ -189,7 +189,6 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 
 func AppendPeer(peer string, source string) {
 	PeerList = append(PeerList, peerStruct{peer, source, time.Now()})
-	//fmt.Printf("Appended %s, %s\n", PeerList[len(PeerList)-1].address, PeerList[len(PeerList)-1].source)
 }
 
 func searchPeerList(peer string) int {
