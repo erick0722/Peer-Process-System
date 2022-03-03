@@ -18,7 +18,7 @@ func generateReport(server regServer) string {
 	report := peer.ConcatPeerList()
 
 	// Add the lists we have received to the report
-	report += fmt.Sprintf("1\n%s\n%s\n%s\n", server.address, server.timeReceived, strconv.Itoa(server.peerNum))
+	report += fmt.Sprintf("1\n%s\n%s\n%s\n", server.address, server.timeReceived.Format("2006-01-02 15:04:05"), strconv.Itoa(server.peerNum))
 	report += concatRegPeers(server)
 
 	// Add the peers received via UDP/IP to the report
