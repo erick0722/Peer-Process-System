@@ -166,7 +166,6 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 
 			index := searchPeerList(addr)
 			if index != -1 {
-				PeerList[index].active = true
 				PeerList[index].lastHeard = time.Now()
 			}
 
@@ -244,7 +243,7 @@ func sendSnip(input string) {
 	currTimeStamp++
 	mutex.Lock()
 	for i := 1; i < len(PeerList); i++ {
-		if sock.CheckAddress(PeerList[i].address) && PeerList[i].active {
+		if sock.CheckAddress(PeerList[i].address) {
 			if PeerList[i].address != peerProcessAddr {
 				conn := sock.InitializeUdpClient(PeerList[i].address)
 				sock.SendMessage(input, conn)
@@ -264,7 +263,6 @@ func storeSnip(msg string, source string) {
 	index := searchPeerList(source)
 	if index != -1 {
 		PeerList[index].lastHeard = time.Now()
-		PeerList[index].active = true
 	}
 
 	//convert message[0] to int
@@ -296,14 +294,10 @@ func checkInactivePeers(ctx context.Context) {
 			for i := 0; i < len(PeerList); i++ {
 				if PeerList[i].address != peerProcessAddr {
 					if time.Since(PeerList[i].lastHeard) > 10*time.Second && PeerList[i].active {
-						PeerList[i].active = false
+						count++
+						PeerList = append(PeerList[:i], PeerList[i+1:]...)
 					}
-				}
-			}
-			for i := 0; i < len(PeerList); i++ {
-				if !PeerList[i].active {
-					count++
-					PeerList = append(PeerList[:i], PeerList[i+1:]...)
+
 				}
 			}
 			fmt.Printf("Removed %d inactive peers\n", count)
