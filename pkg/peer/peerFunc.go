@@ -188,7 +188,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 }
 
 func AppendPeer(peer string, source string) {
-	PeerList = append(PeerList, peerStruct{peer, source, true, time.Now()})
+	PeerList = append(PeerList, peerStruct{peer, source, time.Now()})
 	//fmt.Printf("Appended %s, %s\n", PeerList[len(PeerList)-1].address, PeerList[len(PeerList)-1].source)
 }
 
