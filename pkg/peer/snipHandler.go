@@ -36,10 +36,10 @@ func sendSnip(input string) {
 	input = "snip" + currTimeStampStr + " " + input
 	currTimeStamp++
 	mutex.Lock()
-	for i := 1; i < len(PeerList); i++ {
-		if sock.CheckAddress(PeerList[i].address) {
-			if PeerList[i].address != peerProcessAddr {
-				conn := sock.InitializeUdpClient(PeerList[i].address)
+	for i := 1; i < len(peerList); i++ {
+		if sock.CheckAddress(peerList[i].address) {
+			if peerList[i].address != peerProcessAddr {
+				conn := sock.InitializeUdpClient(peerList[i].address)
 				sock.SendMessage(input, conn)
 				conn.Close()
 				count++
@@ -53,10 +53,10 @@ func sendSnip(input string) {
 
 func storeSnip(msg string, source string) {
 	message := strings.Split(msg, " ")
-	SnipList = append(SnipList, snip{message[1], message[0], source})
+	snipList = append(snipList, snip{message[1], message[0], source})
 	index := searchPeerList(source)
 	if index != -1 {
-		PeerList[index].lastHeard = time.Now()
+		peerList[index].lastHeard = time.Now()
 	}
 
 	//convert message[0] to int
@@ -64,7 +64,7 @@ func storeSnip(msg string, source string) {
 
 	currTimeStamp = findMax(currTimeStamp, timeStamp)
 
-	fmt.Printf("Received %s from %s at timeStamp %s\n", SnipList[len(SnipList)-1].content, SnipList[len(SnipList)-1].source, SnipList[len(SnipList)-1].timeStamp)
+	fmt.Printf("Received %s from %s at timeStamp %s\n", snipList[len(snipList)-1].content, snipList[len(snipList)-1].source, snipList[len(snipList)-1].timeStamp)
 }
 
 func findMax(a int, b int) int {

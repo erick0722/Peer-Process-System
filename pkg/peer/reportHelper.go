@@ -1,55 +1,66 @@
 package peer
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
-func ConcatPeerList(listPeers []peerStruct) string {
-	var peerList string
+func ConcatPeerList() string {
 
-	for i := 0; i < len(listPeers); i++ {
-		peerList += fmt.Sprintf("%s\n", listPeers[i].address)
+	peerNum := strconv.Itoa(len(peerList))
+	peerListStr := fmt.Sprintf("%s\n", peerNum)
+
+	for i := 0; i < len(peerList); i++ {
+		peerListStr += fmt.Sprintf("%s\n", peerList[i].address)
 	}
 
-	return peerList
+	return peerListStr
 }
 
-func ConcatRecvPeerList(recvPeerList []receivedEvent) string {
-	var peerList string
+func ConcatRecvPeerList() string {
 
-	for i := 0; i < len(recvPeerList); i++ {
-		peerList += fmt.Sprintf(
+	peerNum := strconv.Itoa(len(recievedPeers))
+	recvPeerListStr := fmt.Sprintf("%s\n", peerNum)
+
+	for i := 0; i < len(recievedPeers); i++ {
+		recvPeerListStr += fmt.Sprintf(
 			"%s %s %s\n",
-			recvPeerList[i].source,
-			recvPeerList[i].received,
-			recvPeerList[i].timeReceived.Format("2006-01-02 15:04:05"))
+			recievedPeers[i].source,
+			recievedPeers[i].received,
+			recievedPeers[i].timeReceived.Format("2006-01-02 15:04:05"))
 	}
 
-	return peerList
+	return recvPeerListStr
 }
 
-func ConcatPeersSent(peersSent []sentEvent) string {
-	var peerList string
+func ConcatPeersSent() string {
+
+	peerNum := strconv.Itoa(len(peersSent))
+	peersSentStr := fmt.Sprintf("%s\n", peerNum)
 
 	for i := 0; i < len(peersSent); i++ {
-		peerList += fmt.Sprintf(
+		peersSentStr += fmt.Sprintf(
 			"%s %s %s\n",
 			peersSent[i].sentTo,
 			peersSent[i].peer,
 			peersSent[i].timeSent.Format("2006-01-02 15:04:05"))
 	}
 
-	return peerList
+	return peersSentStr
 }
 
-func ConcatSnipList(snipList []snip) string {
-	var peerList string
+func ConcatSnipList() string {
+
+	snipNum := strconv.Itoa(len(snipList))
+	snipListStr := fmt.Sprintf("%s\n", snipNum)
 
 	for i := 0; i < len(snipList); i++ {
-		peerList += fmt.Sprintf(
+		snipListStr += fmt.Sprintf(
 			"%s %s %s\n",
 			snipList[i].timeStamp,
 			snipList[i].content,
 			snipList[i].source)
 	}
 
-	return peerList
+	return snipListStr
 }

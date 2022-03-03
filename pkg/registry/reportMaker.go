@@ -15,28 +15,20 @@ func generateReport(server regServer) string {
 	}
 
 	// Add the current list of peers to the report
-	peerNum := strconv.Itoa(len(peer.PeerList))
-	report := fmt.Sprintf("%s\n", peerNum)
-	report += peer.ConcatPeerList(peer.PeerList)
+	report := peer.ConcatPeerList()
 
 	// Add the lists we have received to the report
 	report += fmt.Sprintf("1\n%s\n%s\n%s\n", server.address, server.timeReceived, strconv.Itoa(server.peerNum))
 	report += concatRegPeers(server)
 
 	// Add the peers received via UDP/IP to the report
-	receivedPeerNum := strconv.Itoa(len(peer.RecievedPeers))
-	report += fmt.Sprintf("%s\n", receivedPeerNum)
-	report += peer.ConcatRecvPeerList(peer.RecievedPeers)
+	report += peer.ConcatRecvPeerList()
 
 	// Add all the ppers we sent via UDP/IP to the report
-	peersSent := strconv.Itoa(len(peer.PeersSent))
-	report += fmt.Sprintf("%s\n", peersSent)
-	report += peer.ConcatPeersSent(peer.PeersSent)
+	report += peer.ConcatPeersSent()
 
 	// Add all snippets we received to the report
-	numSnippets := strconv.Itoa(len(peer.SnipList))
-	report += fmt.Sprintf("%s\n", numSnippets)
-	report += peer.ConcatSnipList(peer.SnipList)
+	report += peer.ConcatSnipList()
 
 	fmt.Printf("%s", report)
 	return report

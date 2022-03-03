@@ -42,10 +42,10 @@ type snip struct {
 	source    string
 }
 
-var PeerList []peerStruct
-var RecievedPeers []receivedEvent
-var PeersSent []sentEvent
-var SnipList []snip
+var peerList []peerStruct
+var recievedPeers []receivedEvent
+var peersSent []sentEvent
+var snipList []snip
 
 var peerProcessAddr string
 var currTimeStamp = 0
@@ -55,7 +55,7 @@ func InitPeerProcess(address string, ctx context.Context) {
 
 	peerProcessAddr = address
 	fmt.Printf("Peer process started at %s\n", peerProcessAddr)
-	PeerList = append(PeerList, peerStruct{peerProcessAddr, peerProcessAddr, time.Now()})
+	peerList = append(peerList, peerStruct{peerProcessAddr, peerProcessAddr, time.Now()})
 	var wg sync.WaitGroup
 	peerCtx, cancel := context.WithCancel(ctx)
 
@@ -75,7 +75,7 @@ func InitPeerProcess(address string, ctx context.Context) {
 	go func() {
 		defer wg.Done()
 		sendPeerList(peerCtx)
-		fmt.Printf("Exiting sendPeerList\n")
+		fmt.Printf("Exiting sendpeerList\n")
 	}()
 
 	go func() {
@@ -110,7 +110,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 
 			index := searchPeerList(addr)
 			if index != -1 {
-				PeerList[index].lastHeard = time.Now()
+				peerList[index].lastHeard = time.Now()
 			}
 
 			switch string(msg[0:4]) {

@@ -51,6 +51,9 @@ func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context
 			conn.Close()
 			return
 		default:
+
+			fmt.Printf("%s", generateReport(registry))
+
 			serverReply := sock.ReceiveTcpMessage(conn, scanner)
 
 			var clientMessage string
