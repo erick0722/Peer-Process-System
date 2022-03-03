@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+/** 
+* Return a string representation of all the peers in our peerlist.
+* 
+* @returns {string} The process' peerlist as a string.
+*/
 func ConcatPeerList() string {
 
 	peerNum := strconv.Itoa(len(peerList))
@@ -17,6 +22,12 @@ func ConcatPeerList() string {
 	return peerListStr
 }
 
+/** 
+* Return a string representation of all the peers our process received from 
+* a UDP/IP message.
+* 
+* @returns {string} The peers our process received from a UDP/IP message as a string. 
+*/
 func ConcatRecvPeerList() string {
 
 	peerNum := strconv.Itoa(len(recievedPeers))
@@ -33,6 +44,12 @@ func ConcatRecvPeerList() string {
 	return recvPeerListStr
 }
 
+/** 
+* Return a string representation of all the peers our process sent to other processes as a 
+* UDP/IP message.
+* 
+* @returns {string} The peers our process sent as a UDP/IP message in a string format.
+*/
 func ConcatPeersSent() string {
 
 	peerNum := strconv.Itoa(len(peersSent))
@@ -49,6 +66,12 @@ func ConcatPeersSent() string {
 	return peersSentStr
 }
 
+/** 
+* Return a string representation of all the snips or messages our peer process 
+* received from other peers. 
+* 
+* @returns {string} All the messages our process received as a string. 
+*/
 func ConcatSnipList() string {
 
 	snipNum := strconv.Itoa(len(snipList))
