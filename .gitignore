@@ -20,7 +20,4 @@
 # Go workspace file
 go.work
 
-registryTest/
-SubmissionRegistryServer/
-i2Reg/
 registryWithTimer/
