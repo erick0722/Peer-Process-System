@@ -55,6 +55,16 @@ var peerProcessAddr string
 var currTimeStamp = 0
 var mutex sync.Mutex
 
+func ConcatPeerList(PeerList []peerStruct) string {
+	var peerList string
+
+	for i := 0; i < len(PeerList); i++{
+		peerList += fmt.Sprintf("%s\n", PeerList[i].address)
+	}
+
+	return peerList
+}
+
 func InitPeerProcess(address string, ctx context.Context) {
 
 	peerProcessAddr = address

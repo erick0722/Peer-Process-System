@@ -145,24 +145,21 @@ func generateReport(server regServer) string {
 		return "0\n0\n\n0\n"
 	}
 
-	// Convert the number of peers to string
-	peerNumString := strconv.Itoa(server.peerNum)
-	report := fmt.Sprintf("%s\n", peerNumString)
+	// Add the current list of peers to the report
+	peerNum := strconv.Itoa(len(peer.PeerList))
+	report := fmt.Sprintf("%s\n", peerNum)
+	report += peer.ConcatPeerList(peer.PeerList)
 
-	// Concat the list of peers
-	report += concatPeers(server)
-
-	// Format the report
-	report += fmt.Sprintf("1\n%s\n%s\n%s\n", server.address, server.timeReceived, peerNumString)
-
-	report += concatPeers(server)
+	// Add the lists we have received to the report
+	report += fmt.Sprintf("1\n%s\n%s\n%s\n", server.address, server.timeReceived, strconv.Itoa(server.peerNum))
+	report += concatRegPeers(server)
 
 	fmt.Printf("%s", report)
 
 	return report
 }
 
-func concatPeers(server regServer) string {
+func concatRegPeers(server regServer) string {
 	var peerList string
 
 	for i := 0; i < server.peerNum; i++ {
