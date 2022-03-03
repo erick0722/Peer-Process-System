@@ -52,7 +52,7 @@ var currTimeStamp = 0
 var mutex sync.Mutex
 
 func InitPeerProcess(address string, ctx context.Context) {
-	// Setup our peer process: add ourselves to our peerlist and configure our threads, 
+	// Setup our peer process: add ourselves to our peerlist and configure our threads,
 	peerProcessAddr = address
 	fmt.Printf("Peer process started at %s\n", peerProcessAddr)
 	peerList = append(peerList, peerStruct{peerProcessAddr, peerProcessAddr, time.Now()})
@@ -90,11 +90,11 @@ func InitPeerProcess(address string, ctx context.Context) {
 //
 /**
 *	Process the different messages our peer process receives from other peers in the system
-* 
+*
 *	@param address {string} The address of the peer who sent the message
 *	@param ctx {context.Context} The context of our app, used to stop the other threads / gracefully exit the program
 *	@param cancel {context.CancelFunc} The function used to initiate the cancel process for our context
-*/
+ */
 func handleMessage(address string, ctx context.Context, cancel context.CancelFunc) {
 	conn := sock.InitializeUdpServer(address)
 
@@ -109,7 +109,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 		default:
 			//fmt.Printf("Waiting for message\n")
 			msg, addr, err := sock.ReceiveUdpMessage(conn)
-			fmt.Println("Received ", msg, " from ", addr)
+			//fmt.Println("Received ", msg, " from ", addr)
 			if err != nil {
 				fmt.Printf("Error detected: %v\n", err)
 				continue
@@ -125,7 +125,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 			case "stop":
 				fmt.Printf("Received stop command, exiting...\n")
 				conn.Close()
-				cancel()	// Stop all our other running threads when we get a "stop" message
+				cancel() // Stop all our other running threads when we get a "stop" message
 				return
 			case "snip":
 				//fmt.Println("Storing snippet...")
