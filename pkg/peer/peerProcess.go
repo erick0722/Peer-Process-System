@@ -129,12 +129,14 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 				return
 			case "snip":
 				//fmt.Println("Storing snippet...")
-				source := strings.TrimSuffix(msg[4:], "\n")
+				source := strings.TrimSuffix(string(msg[4:]), "\n")
 				go storeSnip(source, addr)
 			case "peer":
 				//fmt.Println("Storing peer address...")
-				source := strings.Join(strings.Split(msg, "\n"), "")
-				go addPeer(source[4:], addr)
+				source := strings.TrimSpace(strings.TrimSuffix(string(msg[4:]), "\n"))
+				go addPeer(source, addr)
+				//source := strings.Join(strings.Split(msg, "\n"), "")
+				//go addPeer(source[4:], addr)
 			}
 		}
 	}
