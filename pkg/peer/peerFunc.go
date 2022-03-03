@@ -158,7 +158,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 		default:
 			//fmt.Printf("Waiting for message\n")
 			msg, addr, err := sock.ReceiveUdpMessage(address, conn)
-			//fmt.Println("Received ", msg, " from ", addr)
+			fmt.Println("Received ", msg, " from ", addr)
 			if err != nil {
 				fmt.Printf("Error detected: %v\n", err)
 				continue
@@ -332,10 +332,10 @@ func sendPeerList(ctx context.Context) {
 							sock.SendMessage("peer"+PeerList[i].address, conn)
 							conn.Close()
 							PeersSent = append(PeersSent, sentEvent{PeerList[i].address, PeerList[j].address, time.Now()})
-							count++
 						}
 					}
 				}
+				count++
 			}
 			fmt.Printf("Sent peerlist to %d peers at timeStamp %d\n", count, currTimeStamp)
 		}
