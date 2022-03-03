@@ -58,7 +58,7 @@ var mutex sync.Mutex
 func ConcatPeerList(listPeers []peerStruct) string {
 	var peerList string
 
-	for i := 0; i < len(listPeers); i++{
+	for i := 0; i < len(listPeers); i++ {
 		peerList += fmt.Sprintf("%s\n", listPeers[i].address)
 	}
 
@@ -68,11 +68,11 @@ func ConcatPeerList(listPeers []peerStruct) string {
 func ConcatRecvPeerList(recvPeerList []receivedEvent) string {
 	var peerList string
 
-	for i := 0; i < len(recvPeerList); i++{
+	for i := 0; i < len(recvPeerList); i++ {
 		peerList += fmt.Sprintf(
-			"%s %s %s\n", 
-			recvPeerList[i].source, 
-			recvPeerList[i].received, 
+			"%s %s %s\n",
+			recvPeerList[i].source,
+			recvPeerList[i].received,
 			recvPeerList[i].timeReceived.Format("2006-01-02 15:04:05"))
 	}
 
@@ -82,11 +82,11 @@ func ConcatRecvPeerList(recvPeerList []receivedEvent) string {
 func ConcatPeersSent(peersSent []sentEvent) string {
 	var peerList string
 
-	for i := 0; i < len(peersSent); i++{
+	for i := 0; i < len(peersSent); i++ {
 		peerList += fmt.Sprintf(
-			"%s %s %s\n", 
-			peersSent[i].sentTo, 
-			peersSent[i].peer, 
+			"%s %s %s\n",
+			peersSent[i].sentTo,
+			peersSent[i].peer,
 			peersSent[i].timeSent.Format("2006-01-02 15:04:05"))
 	}
 
@@ -96,11 +96,11 @@ func ConcatPeersSent(peersSent []sentEvent) string {
 func ConcatSnipList(snipList []snip) string {
 	var peerList string
 
-	for i := 0; i < len(snipList); i++{
+	for i := 0; i < len(snipList); i++ {
 		peerList += fmt.Sprintf(
-			"%s %s %s\n", 
-			snipList[i].timeStamp, 
-			snipList[i].content, 
+			"%s %s %s\n",
+			snipList[i].timeStamp,
+			snipList[i].content,
 			snipList[i].source)
 	}
 
@@ -238,7 +238,7 @@ func readSnip(ctx context.Context) {
 }
 
 func sendSnip(input string) {
-
+	count := 0
 	currTimeStampStr := strconv.Itoa(currTimeStamp)
 	input = "snip" + currTimeStampStr + " " + input
 	currTimeStamp++
@@ -249,11 +249,12 @@ func sendSnip(input string) {
 				conn := sock.InitializeUdpClient(PeerList[i].address)
 				sock.SendMessage(input, conn)
 				conn.Close()
+				count++
 			}
 		}
 	}
 	mutex.Unlock()
-	fmt.Printf("Sent [%s] to all peers\n", input)
+	fmt.Printf("Sent [%s] to %d peers\n", input, count)
 
 }
 
@@ -282,7 +283,7 @@ func findMax(a int, b int) int {
 }
 
 func checkInactivePeers(ctx context.Context) {
-
+	count := 0
 	for {
 		select {
 		case <-ctx.Done():
@@ -294,25 +295,24 @@ func checkInactivePeers(ctx context.Context) {
 			for i := 0; i < len(PeerList); i++ {
 				if PeerList[i].address != peerProcessAddr {
 					if time.Since(PeerList[i].lastHeard) > 10*time.Second && PeerList[i].active {
-						//fmt.Printf("Peer %s inactive, removing...\n", PeerList[i].address)
-						//PeerList = append(PeerList[:i], PeerList[i+1:]...)
 						PeerList[i].active = false
 					}
 				}
 			}
 			for i := 0; i < len(PeerList); i++ {
 				if !PeerList[i].active {
+					count++
 					PeerList = append(PeerList[:i], PeerList[i+1:]...)
 				}
 			}
-			fmt.Printf("Done removing inactive peers\n")
+			fmt.Printf("Removed %d inactive peers\n", count)
 		}
 		mutex.Unlock()
 	}
 }
 
 func sendPeerList(ctx context.Context) {
-
+	count := 0
 	for {
 		//time.Sleep(8 * time.Second)
 		select {
@@ -332,11 +332,12 @@ func sendPeerList(ctx context.Context) {
 							sock.SendMessage("peer"+PeerList[i].address, conn)
 							conn.Close()
 							PeersSent = append(PeersSent, sentEvent{PeerList[i].address, PeerList[j].address, time.Now()})
+							count++
 						}
 					}
 				}
 			}
-			fmt.Printf("Sent peerlist at timeStamp %d\n", currTimeStamp)
+			fmt.Printf("Sent peerlist to %d peers at timeStamp %d\n", count, currTimeStamp)
 		}
 		mutex.Unlock()
 	}
