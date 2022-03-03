@@ -70,6 +70,7 @@ func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context
 
 			case strings.Contains(serverReply, "get location"):
 				clientMessage = "Sending udp server location...\n"
+				fmt.Printf("%s\n", peerAddress)
 				sock.SendMessage(peerAddress+"\n", conn)
 
 			case strings.Contains(serverReply, "receive peers"):
@@ -153,16 +154,16 @@ func generateReport(server regServer) string {
 	report += fmt.Sprintf("1\n%s\n%s\n%s\n", server.address, server.timeReceived, strconv.Itoa(server.peerNum))
 	report += concatRegPeers(server)
 
-	// Add the peers received via UDP/IP to the report 
+	// Add the peers received via UDP/IP to the report
 	receivedPeerNum := strconv.Itoa(len(peer.RecievedPeers))
 	report += fmt.Sprintf("%s\n", receivedPeerNum)
 	report += peer.ConcatRecvPeerList(peer.RecievedPeers)
 
-	// Add all the ppers we sent via UDP/IP to the report 
+	// Add all the ppers we sent via UDP/IP to the report
 	peersSent := strconv.Itoa(len(peer.PeersSent))
 	report += fmt.Sprintf("%s\n", peersSent)
 	report += peer.ConcatPeersSent(peer.PeersSent)
-	
+
 	// Add all snippets we received to the report
 	numSnippets := strconv.Itoa(len(peer.SnipList))
 	report += fmt.Sprintf("%s\n", numSnippets)
