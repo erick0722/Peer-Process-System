@@ -109,7 +109,7 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 		default:
 			//fmt.Printf("Waiting for message\n")
 			msg, addr, err := sock.ReceiveUdpMessage(conn)
-			//fmt.Println("Received ", msg, " from ", addr)
+			fmt.Println("Received ", msg, " from ", addr)
 			if err != nil {
 				fmt.Printf("Error detected: %v\n", err)
 				continue

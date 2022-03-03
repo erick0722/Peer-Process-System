@@ -101,7 +101,7 @@ func sendPeerList(ctx context.Context) {
 			// 	}
 			// 	count++
 			// }
-			fmt.Printf("Sent peerlist to %d peers at timeStamp %d\n", count, currTimeStamp)
+			fmt.Printf("Sent %s to %d peers at timeStamp %d\n", peerList[index].address, count, currTimeStamp)
 		}
 		mutex.Unlock()
 	}
