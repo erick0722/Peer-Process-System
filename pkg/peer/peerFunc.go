@@ -24,7 +24,6 @@ import (
 type peerStruct struct {
 	address   string
 	source    string
-	active    bool
 	lastHeard time.Time
 }
 
@@ -111,7 +110,7 @@ func InitPeerProcess(address string, ctx context.Context) {
 
 	peerProcessAddr = address
 	fmt.Printf("Peer process started at %s\n", peerProcessAddr)
-	PeerList = append(PeerList, peerStruct{peerProcessAddr, peerProcessAddr, true, time.Now()})
+	PeerList = append(PeerList, peerStruct{peerProcessAddr, peerProcessAddr, time.Now()})
 	var wg sync.WaitGroup
 	peerCtx, cancel := context.WithCancel(ctx)
 
@@ -293,11 +292,10 @@ func checkInactivePeers(ctx context.Context) {
 			count = 0
 			for i := 0; i < len(PeerList); i++ {
 				if PeerList[i].address != peerProcessAddr {
-					if time.Since(PeerList[i].lastHeard) > 10*time.Second && PeerList[i].active {
+					if time.Since(PeerList[i].lastHeard) > 10*time.Second {
 						count++
 						PeerList = append(PeerList[:i], PeerList[i+1:]...)
 					}
-
 				}
 			}
 			fmt.Printf("Removed %d inactive peers\n", count)
@@ -322,7 +320,7 @@ func sendPeerList(ctx context.Context) {
 			for i := 0; i < len(PeerList); i++ {
 				//send peerlist to everyone
 				for j := 0; j < len(PeerList); j++ {
-					if sock.CheckAddress(PeerList[j].address) && PeerList[j].active {
+					if sock.CheckAddress(PeerList[j].address) {
 						if PeerList[j].address != peerProcessAddr {
 							conn := sock.InitializeUdpClient(PeerList[j].address)
 							sock.SendMessage("peer"+PeerList[i].address, conn)
