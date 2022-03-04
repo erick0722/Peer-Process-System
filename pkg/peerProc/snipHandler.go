@@ -111,13 +111,7 @@ func storeSnip(msg string, source string) {
 	mutex.Unlock()
 }
 
-/*
-	Used to find max when implementing Lamport's Timestamp Algorithm for
-
-	@param a {int} Integer 1
-	@param b {int} Integer 2
-	@returns {int} The largest between a or b. If integers are equal return b.
-*/
+// Return the bigger of two integers, if they are equal then add 1 to one of them and return
 func findMax(a int, b int) int {
 	if a > b {
 		return a
