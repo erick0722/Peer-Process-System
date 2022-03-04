@@ -105,7 +105,7 @@ func sendPeer(conn *net.UDPConn, ctx context.Context) {
 			for {
 				rand.Seed(time.Now().UnixNano())
 				index = rand.Intn(len(peerList))
-				if sock.CheckAddress(peerList[index].address) {
+				if sock.CheckAddress(peerList[index].address) && peerList[index].active {
 					break
 				}
 			}
