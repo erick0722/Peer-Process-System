@@ -13,6 +13,7 @@ import (
 	"559Project/pkg/sock"
 	"context"
 	"fmt"
+	"net"
 	"strings"
 	"sync"
 	"time"
@@ -59,22 +60,24 @@ func InitPeerProcess(address string, ctx context.Context) {
 	var wg sync.WaitGroup
 	peerCtx, cancel := context.WithCancel(ctx)
 
+	conn := sock.InitializeUdpServer(address)
+
 	wg.Add(4)
 	go func() {
 		defer wg.Done()
-		handleMessage(address, peerCtx, cancel)
+		handleMessage(conn, peerCtx, cancel)
 		fmt.Printf("Exiting handleMessage\n")
 	}()
 
 	go func() {
 		defer wg.Done()
-		readSnip(peerCtx)
+		readSnip(conn, peerCtx)
 		fmt.Printf("Exiting readSnip\n")
 	}()
 
 	go func() {
 		defer wg.Done()
-		sendPeerList(peerCtx)
+		sendPeerList(conn, peerCtx)
 		fmt.Printf("Exiting sendpeerList\n")
 	}()
 
@@ -95,8 +98,7 @@ func InitPeerProcess(address string, ctx context.Context) {
 *	@param ctx {context.Context} The context of our app, used to stop the other threads / gracefully exit the program
 *	@param cancel {context.CancelFunc} The function used to initiate the cancel process for our context
  */
-func handleMessage(address string, ctx context.Context, cancel context.CancelFunc) {
-	conn := sock.InitializeUdpServer(address)
+func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.CancelFunc) {
 
 	go func() {
 		<-ctx.Done()
@@ -109,9 +111,14 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 		default:
 			//fmt.Printf("Waiting for message\n")
 			msg, addr, err := sock.ReceiveUdpMessage(conn)
-			fmt.Println("Received ", msg, " from ", addr)
+			//fmt.Println("Received ", msg, " from ", addr)
 			if err != nil {
 				fmt.Printf("Error detected: %v\n", err)
+				continue
+			}
+
+			if len(msg) < 4 {
+				fmt.Printf("Message invalid")
 				continue
 			}
 
@@ -135,8 +142,6 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 				//fmt.Println("Storing peer address...")
 				source := strings.TrimSpace(strings.TrimSuffix(string(msg[4:]), "\n"))
 				go addPeer(source, addr)
-				//source := strings.Join(strings.Split(msg, "\n"), "")
-				//go addPeer(source[4:], addr)
 			}
 		}
 	}

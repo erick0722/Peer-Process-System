@@ -26,6 +26,11 @@ func CheckAddress(addr string) bool {
 	// check if the port number is valid
 	address := strings.Split(addr, ":")
 	if len(address) == 2 {
+		_, err := net.ResolveUDPAddr("udp", addr)
+		if err != nil {
+			return false
+		}
+
 		port, _ := strconv.Atoi(address[1])
 		if port > 0 && port < 65536 {
 			return true

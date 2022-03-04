@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-func InitializeUdpClient(address string) net.Conn {
-	udpAddr, err := net.ResolveUDPAddr("udp", address)
-	checkError(err)
-	conn, err := net.DialUDP("udp", nil, udpAddr)
-	checkError(err)
-	return conn
-}
+// func InitializeUdpClient(address string) net.Conn {
+// 	udpAddr, err := net.ResolveUDPAddr("udp", address)
+// 	checkError(err)
+// 	conn, err := net.DialUDP("udp", nil, udpAddr)
+// 	checkError(err)
+// 	return conn
+// }
 
 func InitializeUdpServer(address string) *net.UDPConn {
 	fmt.Printf("Initializing UDP server on %s\n", address)
@@ -37,4 +37,13 @@ func ReceiveUdpMessage(conn *net.UDPConn) (string, string, error) {
 
 	return msg, addr.String(), nil
 
+}
+
+func SendUdpMsg(addr string, msg string, conn *net.UDPConn) {
+	udpAddr, err := net.ResolveUDPAddr("udp", addr)
+	checkError(err)
+
+	_, err = conn.WriteToUDP([]byte(msg), udpAddr)
+
+	checkError(err)
 }
