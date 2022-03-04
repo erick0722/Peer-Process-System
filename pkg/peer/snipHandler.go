@@ -56,7 +56,6 @@ func sendSnip(input string, conn *net.UDPConn) {
 		if sock.CheckAddress(peerList[i].address) {
 			if peerList[i].address != peerProcessAddr {
 				sock.SendUdpMsg(peerList[i].address, input, conn)
-				conn.Close()
 				count++
 			}
 		}
