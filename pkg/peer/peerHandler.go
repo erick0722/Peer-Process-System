@@ -4,6 +4,7 @@ import (
 	"559Project/pkg/sock"
 	"context"
 	"fmt"
+	"math/rand"
 	"time"
 )
 
@@ -88,21 +89,34 @@ func sendPeerList(ctx context.Context) {
 		if len(peerList) > 0 {
 			count = 0
 			currTimeStamp++
+			//find a random index to send to
+			index := rand.Intn(len(peerList))
 			for i := 0; i < len(peerList); i++ {
-				//send peerlist to everyone
-				for j := 0; j < len(peerList); j++ {
-					if sock.CheckAddress(peerList[j].address) {
-						if peerList[j].address != peerProcessAddr {
-							conn := sock.InitializeUdpClient(peerList[j].address)
-							sock.SendMessage("peer"+peerList[i].address, conn)
-							conn.Close()
-							peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[j].address, time.Now()})
-						}
+				if peerList[i].address != peerProcessAddr {
+					if sock.CheckAddress(peerList[index].address) {
+						conn := sock.InitializeUdpClient(peerList[i].address)
+						sock.SendMessage("peer"+peerList[index].address, conn)
+						conn.Close()
+						peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[index].address, time.Now()})
+						count++
 					}
 				}
-				count++
 			}
-			fmt.Printf("Sent peerlist to %d peers at timeStamp %d\n", count, currTimeStamp)
+			// for i := 0; i < len(peerList); i++ {
+			// 	//send peerlist to everyone
+			// 	for j := 0; j < len(peerList); j++ {
+			// 		if sock.CheckAddress(peerList[j].address) {
+			// 			if peerList[j].address != peerProcessAddr {
+			// 				conn := sock.InitializeUdpClient(peerList[j].address)
+			// 				sock.SendMessage("peer"+peerList[i].address, conn)
+			// 				conn.Close()
+			// 				peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[j].address, time.Now()})
+			// 			}
+			// 		}
+			// 	}
+			// 	count++
+			// }
+			fmt.Printf("Sent %s to %d peers at timeStamp %d\n", peerList[index].address, count, currTimeStamp)
 		}
 		mutex.Unlock()
 	}
