@@ -82,7 +82,7 @@ func storeSnip(msg string, source string) {
 		fmt.Printf("Invalid message received: %s", msg)
 		return
 	}
-
+	mutex.Lock()
 	snipList = append(snipList, snip{message[1], message[0], source})
 
 	// Update the sender of the message in our peerlist
@@ -96,6 +96,7 @@ func storeSnip(msg string, source string) {
 	currTimeStamp = findMax(currTimeStamp, timeStamp) + 1
 
 	fmt.Printf("Received %s from %s at timeStamp %s\n", snipList[len(snipList)-1].content, snipList[len(snipList)-1].source, snipList[len(snipList)-1].timeStamp)
+	mutex.Unlock()
 }
 
 /*

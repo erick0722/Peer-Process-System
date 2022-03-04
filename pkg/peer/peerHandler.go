@@ -13,11 +13,12 @@ import (
 *
 * @param peer {string} The peer to add to our peerlist
 * @param source {string} The peer who sent us information about the peer to add
-*/
+ */
 func AppendPeer(peer string, source string) {
+	mutex.Lock()
 	peerList = append(peerList, peerStruct{peer, source, time.Now()})
+	mutex.Unlock()
 }
-
 
 func searchPeerList(peer string) int {
 	for i := 0; i < len(peerList); i++ {
@@ -46,9 +47,9 @@ func addPeer(receivedAddr string, source string) {
 /**
 * Helper function to remove peers from our peerlist when they are unresponsive.
 * Peers are considered unresponsive when we do not receive snips or peer messages from them after a few seconds.
-* 
-* @param ctx {context.Context} The context from the called instance during initialization. Used to gracefully exit our program. 
-*/
+*
+* @param ctx {context.Context} The context from the called instance during initialization. Used to gracefully exit our program.
+ */
 func checkInactivePeers(ctx context.Context) {
 	count := 0
 	for {
@@ -57,7 +58,7 @@ func checkInactivePeers(ctx context.Context) {
 			return
 		case <-time.After(15 * time.Second):
 		}
-		
+
 		// Prevent our other go functions from reading the peerlist while peers are being removed
 		mutex.Lock()
 		if len(peerList) > 0 {
