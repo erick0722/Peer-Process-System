@@ -85,7 +85,7 @@ func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context
 
 			case strings.Contains(serverReply, "get report"):
 				clientMessage = "Sending report...\n"
-				report := generateReport(registry)
+				report := generateReport(&registry)
 				sock.SendMessage(report, conn)
 
 			case strings.Contains(serverReply, "close"):
