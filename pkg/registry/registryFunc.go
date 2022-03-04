@@ -117,7 +117,7 @@ func receivePeers(conn net.Conn, scanner *bufio.Scanner) {
 	for i := 0; i < numPeers; i++ {
 		// check if the peer is already in the server's peerlist
 		peerAddr := sock.ReceiveTcpMessage(conn, scanner)
-		if !contains(reg.peerList, peerAddr) && sock.CheckAddress(peerAddr) {
+		if !contains(reg.peerList, peerAddr) {
 			reg.peerList = append(reg.peerList, peerAddr)
 			reg.peerNum++
 			peer.AppendPeer(peerAddr, reg.address)

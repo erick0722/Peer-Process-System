@@ -70,7 +70,7 @@ func checkInactivePeers(ctx context.Context) {
 
 		// Prevent our other go functions from reading the peerlist while peers are being removed
 		mutex.Lock()
-		if len(peerList) > 1 {
+		if len(peerList) > 0 {
 			count := 0
 			for i := 0; i < len(peerList); i++ {
 				if peerList[i].address != peerProcessAddr {
@@ -98,22 +98,26 @@ func sendPeerList(conn *net.UDPConn, ctx context.Context) {
 		case <-time.After(6 * time.Second):
 		}
 		mutex.Lock()
-		if len(peerList) > 1 {
+		if len(peerList) > 0 {
 			count := 0
+			index := 0
 			currTimeStamp++
 			// Find a random index to send to
-			index := rand.Intn(len(peerList))
+			for {
+				index = rand.Intn(len(peerList))
+				if sock.CheckAddress(peerList[index].address) {
+					break
+				}
+			}
 			for i := 0; i < len(peerList); i++ {
 				if peerList[i].address != peerProcessAddr {
-					// Send if peer address is valid
-					if sock.CheckAddress(peerList[index].address) {
-						msg := "peer" + peerList[index].address
-						sock.SendUdpMsg(peerList[index].address, msg, conn)
+					msg := "peer" + peerList[index].address
+					sock.SendUdpMsg(peerList[index].address, msg, conn)
 
-						// Append to the list of sent peers
-						peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[index].address, time.Now()})
-						count++
-					}
+					// Append to the list of sent peers
+					peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[index].address, time.Now()})
+					count++
+
 				}
 			}
 

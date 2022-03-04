@@ -42,6 +42,7 @@ func main() {
 		// Start up the connection to the registry server
 		registry.InitRegistryCommunicator(regAddr, peerAddr, ctx)
 		fmt.Println("Registry Communicator exited")
+		fmt.Println("================================================")
 	}()
 
 	// Start a thread to create our peer process
@@ -50,9 +51,12 @@ func main() {
 		// Start up connection to the peer process
 		peer.InitPeerProcess(peerAddr, ctx)
 		fmt.Println("Peer Process exited, connecting to the registry again")
+		fmt.Println("================================================")
 		// Connect to the registry one more time after the peer process exits
 		registry.InitRegistryCommunicator(regAddr, peerAddr, ctx)
 		fmt.Println("Registry Communicator exited again")
+		fmt.Println("================================================")
+
 		cancel()
 	}()
 
