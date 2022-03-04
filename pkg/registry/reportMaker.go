@@ -7,7 +7,7 @@ import (
 )
 
 // Generate a report for the list of peers and sources
-func generateReport(server regServer) string {
+func generateReport(server *regServer) string {
 
 	// Return nothing if no peers have been received (address empty)
 	if server.address == "" {
@@ -40,7 +40,7 @@ func generateReport(server regServer) string {
 * @param server {regServer} The data for the registry server
 * @returns {string} A string type of all the registry sent peers
  */
-func concatRegPeers(server regServer) string {
+func concatRegPeers(server *regServer) string {
 	var peerList string
 
 	for i := 0; i < server.peerNum; i++ {
