@@ -63,10 +63,8 @@ func sendSnip(input string, conn *net.UDPConn) {
 	mutex.Lock()
 	for i := 1; i < len(peerList); i++ {
 		if sock.CheckAddress(peerList[i].address) {
-			if peerList[i].address != peerProcessAddr {
-				sock.SendUdpMsg(peerList[i].address, input, conn)
-				count++
-			}
+			sock.SendUdpMsg(peerList[i].address, input, conn)
+			count++
 		}
 	}
 	mutex.Unlock()

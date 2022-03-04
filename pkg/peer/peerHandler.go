@@ -101,7 +101,6 @@ func sendPeerList(conn *net.UDPConn, ctx context.Context) {
 		if len(peerList) > 0 {
 			count := 0
 			index := 0
-			currTimeStamp++
 			// Find a random index to send to
 			for {
 				index = rand.Intn(len(peerList))
