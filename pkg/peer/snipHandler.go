@@ -55,9 +55,9 @@ func readSnip(conn *net.UDPConn, ctx context.Context) {
  */
 func sendSnip(input string, conn *net.UDPConn) {
 	count := 0
+	currTimeStamp++
 	currTimeStampStr := strconv.Itoa(currTimeStamp)
 	input = "snip" + currTimeStampStr + " " + input
-	currTimeStamp++
 
 	// Prevent other running threads from reading the peerlist while we send a snip
 	mutex.Lock()
