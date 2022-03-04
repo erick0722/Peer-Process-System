@@ -30,6 +30,8 @@ type regServer struct {
 	timeReceived time.Time
 }
 
+var reg regServer
+
 /**
 * Start a TCP connection to the registry server and handle the requests it sends to our process
 *
@@ -41,7 +43,6 @@ func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context
 	conn := sock.InitializeTcpClient(regAddress)
 	fmt.Printf("Connected to server at %s\n", regAddress)
 
-	var registry regServer = regServer{regAddress, []string{}, 0, time.Now()}
 	scanner := bufio.NewScanner(conn)
 	var teamName string = "It Takes Two\n"
 
@@ -79,13 +80,13 @@ func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context
 				sock.SendMessage(peerAddress+"\n", conn)
 
 			case strings.Contains(serverReply, "receive peers"):
-				registry.address = regAddress
-				receivePeers(&registry, conn, scanner)
+				reg.address = regAddress
+				receivePeers(conn, scanner)
 				clientMessage = "Storing peers...\n"
 
 			case strings.Contains(serverReply, "get report"):
 				clientMessage = "Sending report...\n"
-				report := generateReport(&registry)
+				report := generateReport()
 				sock.SendMessage(report, conn)
 
 			case strings.Contains(serverReply, "close"):
@@ -103,7 +104,7 @@ func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context
 }
 
 // Receive the peers from the server and store them into the peerList
-func receivePeers(server *regServer, conn net.Conn, scanner *bufio.Scanner) {
+func receivePeers(conn net.Conn, scanner *bufio.Scanner) {
 
 	reply := sock.ReceiveTcpMessage(conn, scanner)
 
@@ -116,17 +117,17 @@ func receivePeers(server *regServer, conn net.Conn, scanner *bufio.Scanner) {
 	for i := 0; i < numPeers; i++ {
 		// check if the peer is already in the server's peerlist
 		peerAddr := sock.ReceiveTcpMessage(conn, scanner)
-		if !contains(server.peerList, peerAddr) && sock.CheckAddress(peerAddr) {
-			server.peerList = append(server.peerList, peerAddr)
-			server.peerNum++
-			peer.AppendPeer(peerAddr, server.address)
+		if !contains(reg.peerList, peerAddr) && sock.CheckAddress(peerAddr) {
+			reg.peerList = append(reg.peerList, peerAddr)
+			reg.peerNum++
+			peer.AppendPeer(peerAddr, reg.address)
 			fmt.Printf("%s added to peer list\n", peerAddr)
 		} else {
 			fmt.Printf("%s already in peer list\n", peerAddr)
 		}
 
 	}
-	server.timeReceived = time.Now()
+	reg.timeReceived = time.Now()
 }
 
 // Checks if a string is present in a slice

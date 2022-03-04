@@ -56,9 +56,6 @@ func InitPeerProcess(address string, ctx context.Context) {
 	// Setup our peer process: add ourselves to our peerlist and configure our threads,
 	peerProcessAddr = address
 	fmt.Printf("Peer process started at %s\n", peerProcessAddr)
-	if searchPeerList(peerProcessAddr) == -1 {
-		peerList = append(peerList, peerStruct{peerProcessAddr, peerProcessAddr, time.Now()})
-	}
 
 	var wg sync.WaitGroup
 	peerCtx, cancel := context.WithCancel(ctx)

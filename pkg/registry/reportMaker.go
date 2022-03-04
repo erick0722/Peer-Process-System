@@ -7,10 +7,10 @@ import (
 )
 
 // Generate a report for the list of peers and sources
-func generateReport(server *regServer) string {
+func generateReport() string {
 
 	// Return nothing if no peers have been received (address empty)
-	if server.address == "" {
+	if reg.address == "" {
 		return "0\n0\n\n0\n"
 	}
 
@@ -18,8 +18,8 @@ func generateReport(server *regServer) string {
 	report := peer.ConcatPeerList()
 
 	// Add the lists we have received to the report
-	report += fmt.Sprintf("1\n%s\n%s\n%s\n", server.address, server.timeReceived.Format("2006-01-02 15:04:05"), strconv.Itoa(server.peerNum))
-	report += concatRegPeers(server)
+	report += fmt.Sprintf("1\n%s\n%s\n%s\n", reg.address, reg.timeReceived.Format("2006-01-02 15:04:05"), strconv.Itoa(reg.peerNum))
+	report += concatRegPeers()
 
 	// Add the peers received via UDP/IP to the report
 	report += peer.ConcatRecvPeerList()
@@ -40,11 +40,11 @@ func generateReport(server *regServer) string {
 * @param server {regServer} The data for the registry server
 * @returns {string} A string type of all the registry sent peers
  */
-func concatRegPeers(server *regServer) string {
+func concatRegPeers() string {
 	var peerList string
 
-	for i := 0; i < server.peerNum; i++ {
-		peerList += fmt.Sprintf("%s\n", server.peerList[i])
+	for i := 0; i < reg.peerNum; i++ {
+		peerList += fmt.Sprintf("%s\n", reg.peerList[i])
 	}
 
 	return peerList
