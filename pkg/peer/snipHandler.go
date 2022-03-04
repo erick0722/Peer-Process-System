@@ -95,8 +95,6 @@ func storeSnip(msg string, source string) {
 	//join everything after the first space
 	messageStr := strings.Join(message[1:], " ")
 
-	snipList = append(snipList, snip{messageStr, message[0], source})
-
 	// Update the sender of the message in our peerlist
 	index := searchPeerList(source)
 	if index != -1 {
@@ -106,6 +104,9 @@ func storeSnip(msg string, source string) {
 	// Compare the timestamp in the message with our internal clock per Lamport's Timestamp Algorithm
 
 	currTimeStamp = findMax(currTimeStamp, timeStamp) + 1
+	currTimeStampStr := strconv.Itoa(currTimeStamp)
+
+	snipList = append(snipList, snip{messageStr, currTimeStampStr, source})
 
 	fmt.Printf("Received %s from %s at timeStamp %s\n", snipList[len(snipList)-1].content, snipList[len(snipList)-1].source, snipList[len(snipList)-1].timeStamp)
 	mutex.Unlock()
