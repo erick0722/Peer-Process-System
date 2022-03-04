@@ -11,7 +11,7 @@ package registry
 
 import (
 	"559Project/pkg/fileIO"
-	"559Project/pkg/peer"
+	"559Project/pkg/peerProc"
 	"559Project/pkg/sock"
 	"bufio"
 	"context"
@@ -120,7 +120,7 @@ func receivePeers(conn net.Conn, scanner *bufio.Scanner) {
 		if !contains(reg.peerList, peerAddr) {
 			reg.peerList = append(reg.peerList, peerAddr)
 			reg.peerNum++
-			peer.AppendPeer(peerAddr, reg.address)
+			peerProc.AppendPeer(peerAddr, reg.address)
 			fmt.Printf("%s added to peer list\n", peerAddr)
 		} else {
 			fmt.Printf("%s already in peer list\n", peerAddr)

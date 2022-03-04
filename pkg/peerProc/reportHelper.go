@@ -7,7 +7,7 @@
 	Chris Chen
 */
 
-package peer
+package peerProc
 
 import (
 	"fmt"

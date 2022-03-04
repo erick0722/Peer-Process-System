@@ -6,7 +6,7 @@
 	Erick Yip
 	Chris Chen
 */
-package peer
+package peerProc
 
 import (
 	"559Project/pkg/sock"
@@ -73,11 +73,9 @@ func checkInactivePeers(ctx context.Context) {
 		if len(peerList) > 0 {
 			count := 0
 			for i := 0; i < len(peerList); i++ {
-				if peerList[i].address != peerProcessAddr {
-					if time.Since(peerList[i].lastHeard) > 15*time.Second {
-						count++
-						peerList = append(peerList[:i], peerList[i+1:]...)
-					}
+				if time.Since(peerList[i].lastHeard) > 15*time.Second {
+					count++
+					peerList = append(peerList[:i], peerList[i+1:]...)
 				}
 			}
 			fmt.Printf("Removed %d inactive peers\n", count)
@@ -89,7 +87,7 @@ func checkInactivePeers(ctx context.Context) {
 }
 
 // Periodically send a random peer to all peers in the peer list
-func sendPeerList(conn *net.UDPConn, ctx context.Context) {
+func sendPeer(conn *net.UDPConn, ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -103,20 +101,20 @@ func sendPeerList(conn *net.UDPConn, ctx context.Context) {
 			index := 0
 			// Find a random index to send to
 			for {
+				rand.Seed(time.Now().UnixNano())
 				index = rand.Intn(len(peerList))
 				if sock.CheckAddress(peerList[index].address) {
 					break
 				}
 			}
 			for i := 0; i < len(peerList); i++ {
-				if peerList[i].address != peerProcessAddr {
+				if sock.CheckAddress(peerList[i].address) {
 					msg := "peer" + peerList[index].address
-					sock.SendUdpMsg(peerList[index].address, msg, conn)
+					sock.SendUdpMsg(peerList[i].address, msg, conn)
 
 					// Append to the list of sent peers
 					peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[index].address, time.Now()})
 					count++
-
 				}
 			}
 
