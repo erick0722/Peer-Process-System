@@ -77,6 +77,12 @@ func storeSnip(msg string, source string) {
 		fmt.Printf("Invalid message received: %s", msg)
 		return
 	}
+	timeStamp, err := strconv.Atoi(message[0])
+	if err != nil {
+		fmt.Printf("Invalid message received: %s", msg)
+		return
+	}
+
 	snipList = append(snipList, snip{message[1], message[0], source})
 
 	// Update the sender of the message in our peerlist
@@ -86,7 +92,6 @@ func storeSnip(msg string, source string) {
 	}
 
 	// Compare the timestamp in the message with our internal clock per Lamport's Timestamp Algorithm
-	timeStamp, _ := strconv.Atoi(message[0])
 
 	currTimeStamp = findMax(currTimeStamp, timeStamp) + 1
 

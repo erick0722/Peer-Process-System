@@ -115,6 +115,11 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 				continue
 			}
 
+			if len(msg) < 4 {
+				fmt.Printf("Message invalid")
+				continue
+			}
+
 			// Peers are updated in our own peerlist when we receive messages from them
 			index := searchPeerList(addr)
 			if index != -1 {
@@ -135,8 +140,6 @@ func handleMessage(address string, ctx context.Context, cancel context.CancelFun
 				//fmt.Println("Storing peer address...")
 				source := strings.TrimSpace(strings.TrimSuffix(string(msg[4:]), "\n"))
 				go addPeer(source, addr)
-				//source := strings.Join(strings.Split(msg, "\n"), "")
-				//go addPeer(source[4:], addr)
 			}
 		}
 	}
