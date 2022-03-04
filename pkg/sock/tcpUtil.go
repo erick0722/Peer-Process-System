@@ -19,3 +19,5 @@ func ReceiveTcpMessage(conn net.Conn, scanner *bufio.Scanner) string {
 	scanner.Scan()
 	return scanner.Text()
 }
+
+// =============================================================

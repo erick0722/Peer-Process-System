@@ -49,7 +49,7 @@ var peersSent []sentEvent
 var snipList []snip
 
 var peerProcessAddr string
-var currTimeStamp = 0
+var currTimeStamp int = 0
 var mutex sync.Mutex
 
 func InitPeerProcess(address string, ctx context.Context) {
@@ -111,7 +111,7 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 		default:
 			//fmt.Printf("Waiting for message\n")
 			msg, addr, err := sock.ReceiveUdpMessage(conn)
-			//fmt.Println("Received ", msg, " from ", addr)
+			fmt.Println("Received ", msg, " from ", addr)
 			if err != nil {
 				fmt.Printf("Error detected: %v\n", err)
 				continue

@@ -30,20 +30,20 @@ type regServer struct {
 	timeReceived time.Time
 }
 
-/** 
+/**
 * Start a TCP connection to the registry server and handle the requests it sends to our process
-* 
+*
 * @param regAddress {string} IP address of the registry server
 * @param peerAddress {string} IP address of our peer process
 * @param ctx {context.Context} context type used to gracefully exit the connection to the registry
-*/
+ */
 func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context.Context) {
 	conn := sock.InitializeTcpClient(regAddress)
 	fmt.Printf("Connected to server at %s\n", regAddress)
 
 	var registry regServer = regServer{regAddress, []string{}, 0, time.Now()}
 	scanner := bufio.NewScanner(conn)
-	var teamName string = "It Takes Two\n" 
+	var teamName string = "It Takes Two\n"
 
 	go func() {
 		<-ctx.Done()
@@ -57,9 +57,6 @@ func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context
 			conn.Close()
 			return
 		default:
-
-			fmt.Printf("%s", generateReport(registry))
-
 			serverReply := sock.ReceiveTcpMessage(conn, scanner)
 
 			var clientMessage string
@@ -87,7 +84,6 @@ func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context
 				clientMessage = "Storing peers...\n"
 
 			case strings.Contains(serverReply, "get report"):
-				//TODO: update this
 				clientMessage = "Sending report...\n"
 				report := generateReport(registry)
 				sock.SendMessage(report, conn)

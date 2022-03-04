@@ -81,7 +81,6 @@ func checkInactivePeers(ctx context.Context) {
 
 func sendPeerList(conn *net.UDPConn, ctx context.Context) {
 	for {
-		//time.Sleep(8 * time.Second)
 		select {
 		case <-ctx.Done():
 			return
@@ -103,20 +102,7 @@ func sendPeerList(conn *net.UDPConn, ctx context.Context) {
 					}
 				}
 			}
-			// for i := 0; i < len(peerList); i++ {
-			// 	//send peerlist to everyone
-			// 	for j := 0; j < len(peerList); j++ {
-			// 		if sock.CheckAddress(peerList[j].address) {
-			// 			if peerList[j].address != peerProcessAddr {
-			// 				conn := sock.InitializeUdpClient(peerList[j].address)
-			// 				sock.SendMessage("peer"+peerList[i].address, conn)
-			// 				conn.Close()
-			// 				peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[j].address, time.Now()})
-			// 			}
-			// 		}
-			// 	}
-			// 	count++
-			// }
+
 			fmt.Printf("Sent %s to %d peers at timeStamp %d\n", peerList[index].address, count, currTimeStamp)
 		} else {
 			fmt.Println("No peers to send to")
@@ -124,3 +110,5 @@ func sendPeerList(conn *net.UDPConn, ctx context.Context) {
 		mutex.Unlock()
 	}
 }
+
+// =============================================================
