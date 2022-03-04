@@ -7,7 +7,7 @@
 	Chris Chen
 */
 
-package peer
+package peerProc
 
 import (
 	"559Project/pkg/sock"
@@ -85,7 +85,7 @@ func InitPeerProcess(address string, ctx context.Context) {
 	go func() {
 		defer wg.Done()
 		// Periodically send the peer list to other peers
-		sendPeerList(conn, peerCtx)
+		sendPeer(conn, peerCtx)
 		fmt.Printf("Exiting sendpeerList\n")
 	}()
 

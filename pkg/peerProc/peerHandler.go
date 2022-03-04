@@ -6,7 +6,7 @@
 	Erick Yip
 	Chris Chen
 */
-package peer
+package peerProc
 
 import (
 	"559Project/pkg/sock"
@@ -87,7 +87,7 @@ func checkInactivePeers(ctx context.Context) {
 }
 
 // Periodically send a random peer to all peers in the peer list
-func sendPeerList(conn *net.UDPConn, ctx context.Context) {
+func sendPeer(conn *net.UDPConn, ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -101,18 +101,21 @@ func sendPeerList(conn *net.UDPConn, ctx context.Context) {
 			index := 0
 			// Find a random index to send to
 			for {
+				rand.Seed(time.Now().UnixNano())
 				index = rand.Intn(len(peerList))
 				if sock.CheckAddress(peerList[index].address) {
 					break
 				}
 			}
 			for i := 0; i < len(peerList); i++ {
-				msg := "peer" + peerList[index].address
-				sock.SendUdpMsg(peerList[index].address, msg, conn)
+				if sock.CheckAddress(peerList[i].address) {
+					msg := "peer" + peerList[index].address
+					sock.SendUdpMsg(peerList[i].address, msg, conn)
 
-				// Append to the list of sent peers
-				peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[index].address, time.Now()})
-				count++
+					// Append to the list of sent peers
+					peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[index].address, time.Now()})
+					count++
+				}
 			}
 
 			fmt.Printf("Sent %s to %d peers at timeStamp %d\n", peerList[index].address, count, currTimeStamp)

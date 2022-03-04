@@ -10,7 +10,7 @@
 package main
 
 import (
-	"559Project/pkg/peer"
+	"559Project/pkg/peerProc"
 	"559Project/pkg/registry"
 	"context"
 	"fmt"
@@ -49,7 +49,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		// Start up connection to the peer process
-		peer.InitPeerProcess(peerAddr, ctx)
+		peerProc.InitPeerProcess(peerAddr, ctx)
 		fmt.Println("Peer Process exited, connecting to the registry again")
 		fmt.Println("================================================")
 		// Connect to the registry one more time after the peer process exits

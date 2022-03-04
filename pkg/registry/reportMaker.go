@@ -10,7 +10,7 @@
 package registry
 
 import (
-	"559Project/pkg/peer"
+	"559Project/pkg/peerProc"
 	"fmt"
 	"strconv"
 )
@@ -24,20 +24,20 @@ func generateReport() string {
 	}
 
 	// Add the current list of peers to the report
-	report := peer.ConcatPeerList()
+	report := peerProc.ConcatPeerList()
 
 	// Add the lists we have received to the report
 	report += fmt.Sprintf("1\n%s\n%s\n%s\n", reg.address, reg.timeReceived.Format("2006-01-02 15:04:05"), strconv.Itoa(reg.peerNum))
 	report += concatRegPeers()
 
 	// Add the peers received via UDP/IP to the report
-	report += peer.ConcatRecvPeerList()
+	report += peerProc.ConcatRecvPeerList()
 
 	// Add all the ppers we sent via UDP/IP to the report
-	report += peer.ConcatPeersSent()
+	report += peerProc.ConcatPeersSent()
 
 	// Add all snippets we received to the report
-	report += peer.ConcatSnipList()
+	report += peerProc.ConcatSnipList()
 
 	fmt.Printf("%s", report)
 	return report
