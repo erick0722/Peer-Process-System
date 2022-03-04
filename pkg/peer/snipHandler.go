@@ -94,7 +94,7 @@ func storeSnip(msg string, source string) {
 
 	currTimeStamp = findMax(currTimeStamp, timeStamp) + 1
 
-	fmt.Printf("Received %s from %s at timeStamp %s\n", snipList[len(snipList)-1].content, snipList[len(snipList)-1].source, snipList[len(snipList)-1].timeStamp)
+	fmt.Printf("Received %s from %s at timeStamp %s\n", message[1], snipList[len(snipList)-1].source, snipList[len(snipList)-1].timeStamp)
 	mutex.Unlock()
 }
 
