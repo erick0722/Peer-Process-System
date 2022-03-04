@@ -61,7 +61,7 @@ func sendSnip(input string, conn *net.UDPConn) {
 
 	// Prevent other running threads from reading the peerlist while we send a snip
 	mutex.Lock()
-	for i := 1; i < len(peerList); i++ {
+	for i := 0; i < len(peerList); i++ {
 		if sock.CheckAddress(peerList[i].address) {
 			sock.SendUdpMsg(peerList[i].address, input, conn)
 			count++
