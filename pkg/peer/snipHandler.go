@@ -101,7 +101,7 @@ func storeSnip(msg string, source string) {
 
 	// Compare the timestamp in the message with our internal clock per Lamport's Timestamp Algorithm
 
-	currTimeStamp = findMax(currTimeStamp, timeStamp) + 1
+	currTimeStamp = findMax(currTimeStamp, timeStamp)
 	currTimeStampStr := strconv.Itoa(currTimeStamp)
 
 	snipList = append(snipList, snip{messageStr, currTimeStampStr, source})
