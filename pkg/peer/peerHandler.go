@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"net"
 	"time"
 )
 
@@ -78,7 +79,7 @@ func checkInactivePeers(ctx context.Context) {
 	}
 }
 
-func sendPeerList(ctx context.Context) {
+func sendPeerList(conn *net.UDPConn, ctx context.Context) {
 	for {
 		//time.Sleep(8 * time.Second)
 		select {
@@ -95,9 +96,8 @@ func sendPeerList(ctx context.Context) {
 			for i := 0; i < len(peerList); i++ {
 				if peerList[i].address != peerProcessAddr {
 					if sock.CheckAddress(peerList[index].address) {
-						conn := sock.InitializeUdpClient(peerList[i].address)
-						sock.SendMessage("peer"+peerList[index].address, conn)
-						conn.Close()
+						msg := "peer" + peerList[index].address
+						sock.SendUdpMsg(peerList[index].address, msg, conn)
 						peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[index].address, time.Now()})
 						count++
 					}

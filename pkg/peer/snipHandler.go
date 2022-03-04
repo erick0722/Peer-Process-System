@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -19,7 +20,7 @@ import (
 * 							   	When the context's cancel function is called, will signal the
 *								function to gracefully exit
  */
-func readSnip(ctx context.Context) {
+func readSnip(conn *net.UDPConn, ctx context.Context) {
 	// Read input from the user
 	ch := make(chan string)
 	go func() {
@@ -34,7 +35,7 @@ func readSnip(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case input := <-ch:
-			sendSnip(input)
+			sendSnip(input, conn)
 		}
 	}
 }
@@ -43,7 +44,7 @@ func readSnip(ctx context.Context) {
 * Send a snip from our peer process to another peer process(es)
 * @param input {string} The snip message read from standard input: contains correct formatting
  */
-func sendSnip(input string) {
+func sendSnip(input string, conn *net.UDPConn) {
 	count := 0
 	currTimeStampStr := strconv.Itoa(currTimeStamp)
 	input = "snip" + currTimeStampStr + " " + input
@@ -54,8 +55,7 @@ func sendSnip(input string) {
 	for i := 1; i < len(peerList); i++ {
 		if sock.CheckAddress(peerList[i].address) {
 			if peerList[i].address != peerProcessAddr {
-				conn := sock.InitializeUdpClient(peerList[i].address)
-				sock.SendMessage(input, conn)
+				sock.SendUdpMsg(peerList[i].address, input, conn)
 				conn.Close()
 				count++
 			}
