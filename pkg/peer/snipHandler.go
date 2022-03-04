@@ -82,7 +82,11 @@ func storeSnip(msg string, source string) {
 		return
 	}
 	mutex.Lock()
-	snipList = append(snipList, snip{message[1], message[0], source})
+
+	//join everything after the first space
+	messageStr := strings.Join(message[1:], " ")
+
+	snipList = append(snipList, snip{messageStr, message[0], source})
 
 	// Update the sender of the message in our peerlist
 	index := searchPeerList(source)
@@ -94,7 +98,7 @@ func storeSnip(msg string, source string) {
 
 	currTimeStamp = findMax(currTimeStamp, timeStamp) + 1
 
-	fmt.Printf("Received %s from %s at timeStamp %s\n", message[1], snipList[len(snipList)-1].source, snipList[len(snipList)-1].timeStamp)
+	fmt.Printf("Received %s from %s at timeStamp %s\n", snipList[len(snipList)-1].content, snipList[len(snipList)-1].source, snipList[len(snipList)-1].timeStamp)
 	mutex.Unlock()
 }
 
