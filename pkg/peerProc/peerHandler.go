@@ -29,7 +29,7 @@ func AppendPeer(peer string, source string) {
 	mutex.Unlock()
 }
 
-//
+// Search through the peerList for the given peer and return its index
 func searchPeerList(peer string) int {
 	for i := 0; i < len(peerList); i++ {
 		if peerList[i].address == peer {
@@ -39,6 +39,7 @@ func searchPeerList(peer string) int {
 	return -1
 }
 
+// Add a peer to the peer list if it does not exist
 func addPeer(receivedAddr string, source string) {
 	peerIndex := searchPeerList(receivedAddr)
 	if peerIndex == -1 && sock.CheckAddress(receivedAddr) {
@@ -77,7 +78,6 @@ func checkInactivePeers(ctx context.Context) {
 					count++
 					peerList[i].active = false
 					//peerList = append(peerList[:i], peerList[i+1:]...)
-					fmt.Printf("Removed peer %s from peerlist\n", peerList[i].address)
 				}
 			}
 			fmt.Printf("Removed %d inactive peers\n", count)
@@ -109,6 +109,7 @@ func sendPeer(conn *net.UDPConn, ctx context.Context) {
 					break
 				}
 			}
+			// Send a random peer to all peers
 			for i := 0; i < len(peerList); i++ {
 				if sock.CheckAddress(peerList[i].address) && peerList[i].active {
 					msg := "peer" + peerList[index].address
@@ -117,7 +118,6 @@ func sendPeer(conn *net.UDPConn, ctx context.Context) {
 					// Append to the list of sent peers
 					peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[index].address, time.Now()})
 					count++
-					fmt.Printf("Sent peer %s to %s\n", peerList[index].address, peerList[i].address)
 				}
 			}
 
