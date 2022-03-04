@@ -142,11 +142,11 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 			case "snip":
 				// Handle snip message
 				source := strings.TrimSuffix(string(msg[4:]), "\n")
-				storeSnip(source, addr)
+				go storeSnip(source, addr)
 			case "peer":
 				// Handle peer message
 				source := strings.TrimSpace(strings.TrimSuffix(string(msg[4:]), "\n"))
-				addPeer(source, addr)
+				go addPeer(source, addr)
 			case "stop":
 				// Handle stop message
 				fmt.Printf("Received stop command, exiting...\n")
