@@ -116,8 +116,6 @@ func storeSnip(msg string, source string) {
 func findMax(a int, b int) int {
 	if a > b {
 		return a
-	} else if a == b {
-		return b + 1
 	}
 	return b
 }
