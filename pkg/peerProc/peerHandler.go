@@ -25,7 +25,7 @@ import (
  */
 func AppendPeer(peer string, source string) {
 	mutex.Lock()
-	peerList = append(peerList, peerStruct{peer, source, time.Now()})
+	peerList = append(peerList, peerStruct{peer, source, true, time.Now()})
 	mutex.Unlock()
 }
 
@@ -75,7 +75,8 @@ func checkInactivePeers(ctx context.Context) {
 			for i := 0; i < len(peerList); i++ {
 				if time.Since(peerList[i].lastHeard) > 15*time.Second {
 					count++
-					peerList = append(peerList[:i], peerList[i+1:]...)
+					peerList[i].active = false
+					//peerList = append(peerList[:i], peerList[i+1:]...)
 					fmt.Printf("Removed peer %s from peerlist\n", peerList[i].address)
 				}
 			}
@@ -109,7 +110,7 @@ func sendPeer(conn *net.UDPConn, ctx context.Context) {
 				}
 			}
 			for i := 0; i < len(peerList); i++ {
-				if sock.CheckAddress(peerList[i].address) {
+				if sock.CheckAddress(peerList[i].address) && peerList[i].active {
 					msg := "peer" + peerList[index].address
 					sock.SendUdpMsg(peerList[i].address, msg, conn)
 

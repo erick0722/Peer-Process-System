@@ -23,6 +23,7 @@ import (
 type peerStruct struct {
 	address   string
 	source    string
+	active    bool
 	lastHeard time.Time
 }
 
@@ -135,6 +136,7 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 			// Update the sender's last heard time if they are in the list
 			index := searchPeerList(addr)
 			if index != -1 {
+				peerList[index].active = true
 				peerList[index].lastHeard = time.Now()
 			}
 
