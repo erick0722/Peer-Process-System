@@ -33,12 +33,12 @@ func searchPeerList(peer string) int {
 func addPeer(receivedAddr string, source string) {
 	peerIndex := searchPeerList(receivedAddr)
 	sourceIndex := searchPeerList(source)
-	if peerIndex == -1 {
+	if peerIndex == -1 && sock.CheckAddress(receivedAddr) {
 		AppendPeer(receivedAddr, source)
 	}
 
 	// Add sender to list of received peers
-	if sourceIndex == -1 {
+	if sourceIndex == -1 && sock.CheckAddress(source) {
 		AppendPeer(source, source)
 	}
 
