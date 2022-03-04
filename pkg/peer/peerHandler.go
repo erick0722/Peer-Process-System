@@ -51,7 +51,6 @@ func addPeer(receivedAddr string, source string) {
 * @param ctx {context.Context} The context from the called instance during initialization. Used to gracefully exit our program.
  */
 func checkInactivePeers(ctx context.Context) {
-	count := 0
 	for {
 		select {
 		case <-ctx.Done():
@@ -62,7 +61,7 @@ func checkInactivePeers(ctx context.Context) {
 		// Prevent our other go functions from reading the peerlist while peers are being removed
 		mutex.Lock()
 		if len(peerList) > 1 {
-			count = 0
+			count := 0
 			for i := 0; i < len(peerList); i++ {
 				if peerList[i].address != peerProcessAddr {
 					if time.Since(peerList[i].lastHeard) > 10*time.Second {
@@ -72,13 +71,14 @@ func checkInactivePeers(ctx context.Context) {
 				}
 			}
 			fmt.Printf("Removed %d inactive peers\n", count)
+		} else {
+			fmt.Printf("No peers to remove\n")
 		}
 		mutex.Unlock()
 	}
 }
 
 func sendPeerList(ctx context.Context) {
-	count := 0
 	for {
 		//time.Sleep(8 * time.Second)
 		select {
@@ -88,7 +88,7 @@ func sendPeerList(ctx context.Context) {
 		}
 		mutex.Lock()
 		if len(peerList) > 1 {
-			count = 0
+			count := 0
 			currTimeStamp++
 			//find a random index to send to
 			index := rand.Intn(len(peerList))
@@ -118,6 +118,8 @@ func sendPeerList(ctx context.Context) {
 			// 	count++
 			// }
 			fmt.Printf("Sent %s to %d peers at timeStamp %d\n", peerList[index].address, count, currTimeStamp)
+		} else {
+			fmt.Println("No peers to send to")
 		}
 		mutex.Unlock()
 	}
