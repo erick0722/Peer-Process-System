@@ -34,6 +34,12 @@ func generateReport(server regServer) string {
 	return report
 }
 
+/** 
+* Combine all the peers the registry gave to our peerlist as a string
+* 
+* @param server {regServer} The data for the registry server
+* @returns {string} A string type of all the registry sent peers
+*/
 func concatRegPeers(server regServer) string {
 	var peerList string
 
