@@ -1,3 +1,12 @@
+// =============================================================
+/*
+	CPSC 559 - Iteration 2
+	udpUtil.go
+
+	Erick Yip
+	Chris Chen
+*/
+
 package sock
 
 import (
@@ -6,6 +15,7 @@ import (
 	"strings"
 )
 
+// Initialize UDP server connection at the given address
 func InitializeUdpServer(address string) *net.UDPConn {
 	fmt.Printf("Initializing UDP server on %s\n", address)
 	udpAddr, err := net.ResolveUDPAddr("udp", address)
@@ -16,12 +26,12 @@ func InitializeUdpServer(address string) *net.UDPConn {
 
 }
 
+// Listen and read UDP message coming from other peers
 func ReceiveUdpMessage(conn *net.UDPConn) (string, string, error) {
 
 	// Read from the connection
 	data := make([]byte, 1024)
 	len, addr, err := conn.ReadFromUDP(data)
-	//checkError(err)
 	if err != nil {
 		return "", "", err
 	}
@@ -31,6 +41,7 @@ func ReceiveUdpMessage(conn *net.UDPConn) (string, string, error) {
 
 }
 
+// Send a message to the address
 func SendUdpMsg(addr string, msg string, conn *net.UDPConn) {
 	udpAddr, err := net.ResolveUDPAddr("udp", addr)
 	checkError(err)

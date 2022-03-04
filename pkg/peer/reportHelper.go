@@ -1,3 +1,12 @@
+// =============================================================
+/*
+	CPSC 559 - Iteration 2
+	reportHelper.go
+
+	Erick Yip
+	Chris Chen
+*/
+
 package peer
 
 import (

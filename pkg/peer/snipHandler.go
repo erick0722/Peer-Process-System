@@ -1,3 +1,12 @@
+// =============================================================
+/*
+	CPSC 559 - Iteration 2
+	snipHandler.go
+
+	Erick Yip
+	Chris Chen
+*/
+
 package peer
 
 import (

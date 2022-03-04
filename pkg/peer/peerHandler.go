@@ -1,3 +1,11 @@
+// =============================================================
+/*
+	CPSC 559 - Iteration 2
+	peerHandler.go
+
+	Erick Yip
+	Chris Chen
+*/
 package peer
 
 import (
@@ -21,6 +29,7 @@ func AppendPeer(peer string, source string) {
 	mutex.Unlock()
 }
 
+//
 func searchPeerList(peer string) int {
 	for i := 0; i < len(peerList); i++ {
 		if peerList[i].address == peer {
@@ -79,24 +88,29 @@ func checkInactivePeers(ctx context.Context) {
 	}
 }
 
+// Periodically send a random peer to all peers in the peer list
 func sendPeerList(conn *net.UDPConn, ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
+			// Wait for 6 seconds
 		case <-time.After(6 * time.Second):
 		}
 		mutex.Lock()
 		if len(peerList) > 1 {
 			count := 0
 			currTimeStamp++
-			//find a random index to send to
+			// Find a random index to send to
 			index := rand.Intn(len(peerList))
 			for i := 0; i < len(peerList); i++ {
 				if peerList[i].address != peerProcessAddr {
+					// Send if peer address is valid
 					if sock.CheckAddress(peerList[index].address) {
 						msg := "peer" + peerList[index].address
 						sock.SendUdpMsg(peerList[index].address, msg, conn)
+
+						// Append to the list of sent peers
 						peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[index].address, time.Now()})
 						count++
 					}

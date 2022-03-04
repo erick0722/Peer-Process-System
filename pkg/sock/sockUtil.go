@@ -11,7 +11,6 @@ package sock
 
 import (
 	"net"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -22,6 +21,7 @@ func SendMessage(message string, conn net.Conn) {
 	checkError(err)
 }
 
+// Check if the ip address is valid
 func CheckAddress(addr string) bool {
 	// check if the port number is valid
 	address := strings.Split(addr, ":")
@@ -42,8 +42,7 @@ func CheckAddress(addr string) bool {
 // Check for errors
 func checkError(err error) {
 	if err != nil {
-		println("Error detected, exiting...", err.Error())
-		os.Exit(1)
+		println("Error detected!", err.Error())
 	}
 }
 

@@ -1,3 +1,12 @@
+// =============================================================
+/*
+	CPSC 559 - Iteration 2
+	reportMaker.go
+
+	Erick Yip
+	Chris Chen
+*/
+
 package registry
 
 import (

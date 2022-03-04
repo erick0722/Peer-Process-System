@@ -26,17 +26,20 @@ func main() {
 	var wg sync.WaitGroup
 	ctx, cancel := context.WithCancel(context.Background())
 
+	// Ask for the registry and peer process' ip addresses
 	fmt.Println("Please enter the registry's address: ")
 	fmt.Scanln(&regAddr)
 
 	fmt.Println("Please enter the peer process's address: ")
 	fmt.Scanln(&peerAddr)
 
+	// Make 2 threads / goroutines
 	wg.Add(2)
 
-	// Start a thread to communicate with the Registry 
+	// Start a thread to communicate with the Registry
 	go func() {
 		defer wg.Done()
+		// Start up the connection to the registry server
 		registry.InitRegistryCommunicator(regAddr, peerAddr, ctx)
 		fmt.Println("Registry Communicator exited")
 	}()
@@ -44,13 +47,16 @@ func main() {
 	// Start a thread to create our peer process
 	go func() {
 		defer wg.Done()
+		// Start up connection to the peer process
 		peer.InitPeerProcess(peerAddr, ctx)
 		fmt.Println("Peer Process exited, connecting to the registry again")
+		// Connect to the registry one more time after the peer process exits
 		registry.InitRegistryCommunicator(regAddr, peerAddr, ctx)
+		fmt.Println("Registry Communicator exited again")
 		cancel()
 	}()
 
-	// Shut our program down gracefully when CTRL+C is pressed or is interrupted 
+	// Shut our program down gracefully when CTRL+C is pressed or is interrupted
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM)
 	signal.Notify(s, os.Interrupt, os.Kill)
