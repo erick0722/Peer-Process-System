@@ -74,7 +74,7 @@ func checkInactivePeers(ctx context.Context) {
 			count := 0
 			for i := 0; i < len(peerList); i++ {
 				if peerList[i].address != peerProcessAddr {
-					if time.Since(peerList[i].lastHeard) > 10*time.Second {
+					if time.Since(peerList[i].lastHeard) > 15*time.Second {
 						count++
 						peerList = append(peerList[:i], peerList[i+1:]...)
 					}
