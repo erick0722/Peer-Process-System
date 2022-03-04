@@ -76,6 +76,7 @@ func checkInactivePeers(ctx context.Context) {
 				if time.Since(peerList[i].lastHeard) > 15*time.Second {
 					count++
 					peerList = append(peerList[:i], peerList[i+1:]...)
+					fmt.Printf("Removed peer %s from peerlist\n", peerList[i].address)
 				}
 			}
 			fmt.Printf("Removed %d inactive peers\n", count)
@@ -115,6 +116,7 @@ func sendPeer(conn *net.UDPConn, ctx context.Context) {
 					// Append to the list of sent peers
 					peersSent = append(peersSent, sentEvent{peerList[i].address, peerList[index].address, time.Now()})
 					count++
+					fmt.Printf("Sent peer %s to %s\n", peerList[index].address, peerList[i].address)
 				}
 			}
 
