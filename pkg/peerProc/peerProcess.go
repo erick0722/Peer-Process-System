@@ -152,6 +152,7 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 			case "stop":
 				// Handle stop message
 				fmt.Printf("Received stop command, exiting...\n")
+				sock.SendUdpMsg(addr, "ackIt Takes Two", conn)
 				conn.Close()
 				cancel() // Stop all our other running threads when we get a "stop" message
 				return
