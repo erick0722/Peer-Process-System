@@ -1,6 +1,6 @@
 // =============================================================
 /*
-	CPSC 559 - Iteration 2
+	CPSC 559 - Iteration 3
 	peerHandler.go
 
 	Erick Yip
@@ -66,7 +66,7 @@ func checkInactivePeers(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case <-time.After(15 * time.Second):
+		case <-time.After(60 * time.Second):
 		}
 
 		// Prevent our other go functions from reading the peerlist while peers are being removed
