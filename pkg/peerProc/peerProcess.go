@@ -100,7 +100,6 @@ func InitPeerProcess(address string, ctx context.Context) {
 	wg.Wait()
 }
 
-//
 /**
 *	Process the different messages our peer process receives from other peers in the system
 *
@@ -152,11 +151,9 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 				go addPeer(source, addr)
 			case "stop":
 				// Handle stop message
-				peerCancel()
+				peerCancel() // Stop all our other running threads except for the current one
 				handleStop(addr, conn)
-				// sock.SendUdpMsg(addr, "ackIt Takes Two\n", conn)
-				// conn.Close()
-				cancel() // Stop all our other running threads when we get a "stop" message
+				cancel() // Stop the current thread
 				fmt.Printf("Exiting peer process\n")
 				return
 			}
@@ -164,33 +161,48 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 	}
 }
 
+/**
+*	Handle the stop message from the registry
+*
+*	@param regAddr {string} The address of the peer who sent the message
+*	@param conn {net.UDPConn} The UDP connection to the registry
+ */
+
 func handleStop(regAddr string, conn *net.UDPConn) {
+	// Set the registry's last heard time to now
 	stopCount := 1
 	lastHeard := time.Now()
 
+	// Send an initial ack to the registry
 	fmt.Printf("Sending ack...\n")
 	sock.SendUdpMsg(regAddr, "ackIt Takes Two\n", conn)
 
 	for {
+		// If 3 stops have been seen, exit
 		if stopCount == 3 {
 			conn.Close()
 			return
 		}
 
+		// Attempts to receive a message
 		msg, addr, err := sock.ReceiveUdpMessage(conn)
 
+		// Break if there is an error (in this case it is a timeout error)
 		if msg == "" && addr == "" && err != nil {
 			fmt.Printf("No more messages received, exiting...\n")
 			conn.Close()
 			return
 		} else if addr == regAddr {
+			// If we got a stop message, send the ack again and increment the stop count
 			if string(msg[0:4]) == "stop" {
 				fmt.Printf("Received stop from %s, sending ack...\n", addr)
 				sock.SendUdpMsg(regAddr, "ackIt Takes Two\n", conn)
 				stopCount++
 			}
 		} else {
+			// If it's a normal message, compare the received time with lastHeard to see if we still getting messages from the registry
 			if time.Since(lastHeard) > 10*time.Second {
+				// Close if we havn't heard from the registry for more than 10 seconds
 				fmt.Printf("No more messages received from the registry, exiting...\n")
 				conn.Close()
 				return
