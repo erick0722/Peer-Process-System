@@ -62,8 +62,8 @@ func InitPeerProcess(address string, ctx context.Context) {
 	peerProcessAddr = address
 
 	var wg sync.WaitGroup
-	peerCtx, cancel := context.WithCancel(ctx)
-
+	peerCtx, peerCancel := context.WithCancel(ctx)
+	msgCtx, msgCancel := context.WithCancel(ctx)
 	conn := sock.InitializeUdpServer(address)
 	fmt.Printf("Peer process started at %s\n", peerProcessAddr)
 
@@ -72,7 +72,7 @@ func InitPeerProcess(address string, ctx context.Context) {
 	go func() {
 		defer wg.Done()
 		// Handle incoming messages from other peer processes
-		handleMessage(conn, peerCtx, cancel)
+		handleMessage(conn, msgCtx, msgCancel, peerCancel)
 		fmt.Printf("Exiting handleMessage\n")
 	}()
 
@@ -108,7 +108,7 @@ func InitPeerProcess(address string, ctx context.Context) {
 *	@param ctx {context.Context} The context of our app, used to stop the other threads / gracefully exit the program
 *	@param cancel {context.CancelFunc} The function used to initiate the cancel process for our context
  */
-func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.CancelFunc) {
+func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.CancelFunc, peerCancel context.CancelFunc) {
 
 	go func() {
 		<-ctx.Done()
@@ -151,11 +151,11 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 				go addPeer(source, addr)
 			case "stop":
 				// Handle stop message
-				cancel()
+				peerCancel()
 				handleStop(addr, conn)
 				// sock.SendUdpMsg(addr, "ackIt Takes Two\n", conn)
 				// conn.Close()
-				// cancel() // Stop all our other running threads when we get a "stop" message
+				cancel() // Stop all our other running threads when we get a "stop" message
 				return
 			}
 		}
