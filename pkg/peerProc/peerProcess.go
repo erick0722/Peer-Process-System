@@ -118,6 +118,7 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 		select {
 		// If the context is cancelled, exit the thread
 		case <-ctx.Done():
+			peerCancel()
 			return
 		default:
 			// Receive message from other peer process
@@ -156,6 +157,7 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 				// sock.SendUdpMsg(addr, "ackIt Takes Two\n", conn)
 				// conn.Close()
 				cancel() // Stop all our other running threads when we get a "stop" message
+				fmt.Printf("Exiting peer process\n")
 				return
 			}
 		}
@@ -170,27 +172,19 @@ func handleStop(regAddr string, conn *net.UDPConn) {
 		sock.SendUdpMsg(regAddr, "ackIt Takes Two\n", conn)
 
 		if stopCount == 3 || loopCount == 3 {
-			fmt.Printf("Exiting peer process\n")
 			conn.Close()
 			return
 		}
 
-		time.Sleep(10 * time.Second)
-		msg, addr, err := sock.ReceiveUdpMessage(conn)
-		fmt.Printf("Received message: %s\n", msg)
-		if err != nil {
-			fmt.Printf("Error detected: %v\n", err)
-			continue
-		}
+		msg, addr, err := sock.WaitForStop(conn)
 
-		if msg == "" {
-			fmt.Printf("Exiting peer process\n")
+		if err == nil && msg == "" && addr == "" {
 			conn.Close()
 			return
 		}
 
-		if addr == regAddr && string(msg[0:4]) == "stop" {
-			fmt.Printf("Received stop command\n")
+		if string(msg[0:4]) == "stop" {
+			fmt.Printf("Received stop from %s\n", addr)
 			stopCount++
 		}
 

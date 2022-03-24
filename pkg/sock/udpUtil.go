@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"time"
 )
 
 // Initialize UDP server connection at the given address
@@ -49,6 +50,22 @@ func SendUdpMsg(addr string, msg string, conn *net.UDPConn) {
 	_, err = conn.WriteToUDP([]byte(msg), udpAddr)
 
 	checkError(err)
+}
+
+func WaitForStop(conn *net.UDPConn) (string, string, error) {
+	ch := time.After(time.Second * 15)
+
+	for {
+		select {
+		case <-ch:
+			fmt.Printf("Finished waiting.\n")
+			return "", "", nil
+		default:
+			fmt.Printf("Waiting to receive a stop...\n")
+			msg, addr, err := ReceiveUdpMessage(conn)
+			return msg, addr, err
+		}
+	}
 }
 
 // =============================================================
