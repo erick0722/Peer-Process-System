@@ -166,29 +166,36 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 
 func handleStop(regAddr string, conn *net.UDPConn) {
 	stopCount := 1
-	loopCount := 1
-	for {
-		fmt.Printf("Sending ack...\n")
-		sock.SendUdpMsg(regAddr, "ackIt Takes Two\n", conn)
+	lastHeard := time.Now()
 
-		if stopCount == 3 || loopCount == 3 {
+	fmt.Printf("Sending ack...\n")
+	sock.SendUdpMsg(regAddr, "ackIt Takes Two\n", conn)
+
+	for {
+		if stopCount == 3 {
 			conn.Close()
 			return
 		}
 
-		time.Sleep(time.Second * 5)
 		msg, addr, err := sock.ReceiveUdpMessage(conn)
 
 		if msg == "" && addr == "" && err != nil {
-			fmt.Printf("Error detected: %v\n", err)
+			fmt.Printf("No more messages received, exiting...\n")
 			conn.Close()
 			return
-		} else if string(msg[0:4]) == "stop" {
-			fmt.Printf("Received stop from %s\n", addr)
-			stopCount++
+		} else if addr == regAddr {
+			if string(msg[0:4]) == "stop" {
+				fmt.Printf("Received stop from %s, sending ack...\n", addr)
+				sock.SendUdpMsg(regAddr, "ackIt Takes Two\n", conn)
+				stopCount++
+			}
+		} else {
+			if time.Since(lastHeard) > 10*time.Second {
+				fmt.Printf("No more messages received from the registry, exiting...\n")
+				conn.Close()
+				return
+			}
 		}
-
-		loopCount++
 	}
 }
 
