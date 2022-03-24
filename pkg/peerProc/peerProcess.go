@@ -152,7 +152,7 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 			case "stop":
 				// Handle stop message
 				fmt.Printf("Received stop command, exiting...\n")
-				handleStop(addr, conn, ctx, cancel)
+				go handleStop(addr, conn, ctx, cancel)
 				// sock.SendUdpMsg(addr, "ackIt Takes Two\n", conn)
 				// conn.Close()
 				// cancel() // Stop all our other running threads when we get a "stop" message
@@ -174,12 +174,16 @@ func handleStop(regAddr string, conn *net.UDPConn, ctx context.Context, cancel c
 			return
 		}
 
-		time.Sleep(5 * time.Second)
+		time.Sleep(10 * time.Second)
 		msg, addr, err := sock.ReceiveUdpMessage(conn)
 
 		if err != nil {
 			fmt.Printf("Error detected: %v\n", err)
 			continue
+		}
+
+		if msg == "" {
+			return
 		}
 
 		if addr == regAddr && string(msg[0:4]) == "stop" {

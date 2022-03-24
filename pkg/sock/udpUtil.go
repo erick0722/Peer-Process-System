@@ -37,7 +37,7 @@ func ReceiveUdpMessage(conn *net.UDPConn) (string, string, error) {
 	}
 	msg := strings.TrimSpace(string(data[:len]))
 
-	return msg, addr.String(), nil
+	return msg, addr.String(), err
 
 }
 
