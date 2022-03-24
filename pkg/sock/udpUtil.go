@@ -30,15 +30,15 @@ func InitializeUdpServer(address string) *net.UDPConn {
 
 // Listen and read UDP message coming from other peers
 func ReceiveUdpMessage(conn *net.UDPConn) (string, string, error) {
-
 	// Read from the connection
+	conn.SetReadDeadline(time.Now().Add(time.Second * 10))
+
 	data := make([]byte, 1024)
 	len, addr, err := conn.ReadFromUDP(data)
 	if err != nil {
 		return "", "", err
 	}
 	msg := strings.TrimSpace(string(data[:len]))
-	conn.SetReadDeadline(time.Now().Add(time.Second * 10))
 	return msg, addr.String(), err
 
 }
@@ -52,21 +52,5 @@ func SendUdpMsg(addr string, msg string, conn *net.UDPConn) {
 
 	checkError(err)
 }
-
-// func WaitForStop(conn *net.UDPConn) (string, string, error) {
-// 	ch := time.After(time.Second * 15)
-
-// 	for {
-// 		select {
-// 		case <-ch:
-// 			fmt.Printf("Finished waiting.\n")
-// 			return "", "", nil
-// 		default:
-// 			fmt.Printf("Waiting to receive a stop...\n")
-// 			msg, addr, err := ReceiveUdpMessage(conn)
-// 			return msg, addr, err
-// 		}
-// 	}
-// }
 
 // =============================================================
