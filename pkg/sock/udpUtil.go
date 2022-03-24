@@ -23,6 +23,7 @@ func InitializeUdpServer(address string) *net.UDPConn {
 	checkError(err)
 	conn, err := net.ListenUDP("udp", udpAddr)
 	checkError(err)
+	conn.SetReadDeadline(time.Now().Add(time.Second * 10))
 	return conn
 
 }
@@ -37,7 +38,7 @@ func ReceiveUdpMessage(conn *net.UDPConn) (string, string, error) {
 		return "", "", err
 	}
 	msg := strings.TrimSpace(string(data[:len]))
-
+	conn.SetReadDeadline(time.Now().Add(time.Second * 10))
 	return msg, addr.String(), err
 
 }
@@ -52,20 +53,20 @@ func SendUdpMsg(addr string, msg string, conn *net.UDPConn) {
 	checkError(err)
 }
 
-func WaitForStop(conn *net.UDPConn) (string, string, error) {
-	ch := time.After(time.Second * 15)
+// func WaitForStop(conn *net.UDPConn) (string, string, error) {
+// 	ch := time.After(time.Second * 15)
 
-	for {
-		select {
-		case <-ch:
-			fmt.Printf("Finished waiting.\n")
-			return "", "", nil
-		default:
-			fmt.Printf("Waiting to receive a stop...\n")
-			msg, addr, err := ReceiveUdpMessage(conn)
-			return msg, addr, err
-		}
-	}
-}
+// 	for {
+// 		select {
+// 		case <-ch:
+// 			fmt.Printf("Finished waiting.\n")
+// 			return "", "", nil
+// 		default:
+// 			fmt.Printf("Waiting to receive a stop...\n")
+// 			msg, addr, err := ReceiveUdpMessage(conn)
+// 			return msg, addr, err
+// 		}
+// 	}
+// }
 
 // =============================================================

@@ -176,14 +176,15 @@ func handleStop(regAddr string, conn *net.UDPConn) {
 			return
 		}
 
-		msg, addr, err := sock.WaitForStop(conn)
+		time.Sleep(time.Second * 5)
+		msg, addr, err := sock.ReceiveUdpMessage(conn)
 
-		if err == nil && msg == "" && addr == "" {
+		if err != nil && msg == "" && addr == "" {
 			conn.Close()
 			return
 		}
 
-		if string(msg[0:4]) == "stop" {
+		if addr == regAddr && string(msg[0:4]) == "stop" {
 			fmt.Printf("Received stop from %s\n", addr)
 			stopCount++
 		}
