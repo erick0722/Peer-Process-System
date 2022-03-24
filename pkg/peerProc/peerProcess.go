@@ -152,11 +152,39 @@ func handleMessage(conn *net.UDPConn, ctx context.Context, cancel context.Cancel
 			case "stop":
 				// Handle stop message
 				fmt.Printf("Received stop command, exiting...\n")
-				sock.SendUdpMsg(addr, "ackIt Takes Two\n", conn)
-				conn.Close()
-				cancel() // Stop all our other running threads when we get a "stop" message
+				handleStop(addr, conn, ctx, cancel)
+				// sock.SendUdpMsg(addr, "ackIt Takes Two\n", conn)
+				// conn.Close()
+				// cancel() // Stop all our other running threads when we get a "stop" message
 				return
 			}
+		}
+	}
+}
+
+func handleStop(regAddr string, conn *net.UDPConn, ctx context.Context, cancel context.CancelFunc) {
+	stopCount := 1
+	for {
+		sock.SendUdpMsg(regAddr, "ackIt Takes Two\n", conn)
+
+		if stopCount == 3 {
+			fmt.Printf("Exiting peer process\n")
+			conn.Close()
+			cancel()
+			return
+		}
+
+		time.Sleep(5 * time.Second)
+		msg, addr, err := sock.ReceiveUdpMessage(conn)
+
+		if err != nil {
+			fmt.Printf("Error detected: %v\n", err)
+			continue
+		}
+
+		if addr == regAddr && string(msg[0:4]) == "stop" {
+			fmt.Printf("Received stop command, sending ack...\n")
+			stopCount++
 		}
 	}
 }
