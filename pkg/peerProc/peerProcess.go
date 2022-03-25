@@ -185,7 +185,7 @@ func handleStop(regAddr string, conn *net.UDPConn) {
 		}
 
 		// Attempts to receive a message
-		msg, addr, err := sock.ReceiveUdpMessage(conn)
+		msg, addr, err := sock.ReceiveStopMessage(conn)
 
 		// Break if there is an error (in this case it is a timeout error)
 		if msg == "" && addr == "" && err != nil {

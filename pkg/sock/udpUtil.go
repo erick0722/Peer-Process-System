@@ -28,6 +28,19 @@ func InitializeUdpServer(address string) *net.UDPConn {
 
 // Listen and read UDP message coming from other peers
 func ReceiveUdpMessage(conn *net.UDPConn) (string, string, error) {
+
+	// Read from the connection
+	data := make([]byte, 1024)
+	len, addr, err := conn.ReadFromUDP(data)
+	if err != nil {
+		return "", "", err
+	}
+	msg := strings.TrimSpace(string(data[:len]))
+	return msg, addr.String(), err
+}
+
+// Listen and read stop message coming from other peers/registry
+func ReceiveStopMessage(conn *net.UDPConn) (string, string, error) {
 	// Set the read deadline to be 10 seconds max
 	conn.SetReadDeadline(time.Now().Add(time.Second * 10))
 
