@@ -91,6 +91,8 @@ func InitRegistryCommunicator(regAddress string, peerAddress string, ctx context
 
 			case strings.Contains(serverReply, "close"):
 				fmt.Printf("%s", "Closing...\n")
+				// sleep for 200 miliseconds
+				time.Sleep(200 * time.Millisecond)
 				conn.Close()
 				return
 
